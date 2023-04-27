@@ -19,7 +19,7 @@ class ProductController extends Controller
         $productes = Product::latest()->paginate(10);
 
         //return view('dashboard.product.index', ['products' => $productes]);
-        return view('dashboard.product.indexAPI');
+        return view('dashboard.product.index');
     }
 
     /**
@@ -78,6 +78,9 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Product::findOrFail($id)->delete();
+        return response()->json(["data" => [
+            "success" => true
+        ]]);
     }
 }

@@ -56,6 +56,32 @@ const mostraDades = (dades) => {
     $productes.forEach((producte) => {
         afegeixProducte(producte.id, producte.product_name, producte.product_description, producte.product_price);
     });
+
+    /*const deleteButtons = document.querySelectorAll('.boto-eliminar');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', event => {
+            event.preventDefault();
+            const productId = button.getAttribute('id-producte');
+            // Enviar petició d'eliminació
+            fetch(`/dashboard/product/delete/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    throw new Error('Error en la respuesta de la petición de eliminación');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        });
+    });*/
+
 }
 
 const carregarMultiplesDades = async (...urls) => {
@@ -92,38 +118,47 @@ function afegeixProducte(id, nom, descripcio, preu) {
     tdde.innerHTML = descripcio;
     tdpr.innerHTML = preu;
 
-    const actions =  document.createElement('form');
+    const formulari =  document.createElement('form');
 
-    actions.setAttribute('action', '');
-    actions.setAttribute('method', 'POST');
+    formulari.setAttribute('method', 'POST');
+    formulari.setAttribute('action', `/dashboard/product/delete/` + id);
 
-    const linkeshow =  document.createElement('a');
-    const linkedit =  document.createElement('a');
-    const linkdelete =  document.createElement('a');
+    // Afegim el camp CSRF
+    /*const tokenField = document.createElement('input');
+    tokenField.setAttribute('type', 'hidden');
+    tokenField.setAttribute('name', '_token');
+    tokenField.setAttribute('value', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    formulari.appendChild(tokenField);*/
 
-    linkeshow.setAttribute('href', '/dashboard/product/show/' + id);
-    linkedit.setAttribute('href', '/dashboard/product/' + id + '/edit/');
-    linkdelete.setAttribute('href', '/dashboard/product/delete/' + id);
+    const veure =  document.createElement('a');
+    const modificar =  document.createElement('a');
+    const eliminar =  document.createElement('button');
     
-    linkeshow.innerHTML = "Veure"
-    linkedit.innerHTML = "Editar"
-    linkdelete.innerHTML = "Eliminar"
+
+    veure.setAttribute('href', '/dashboard/product/show/' + id);
+    modificar.setAttribute('href', '/dashboard/product/' + id + '/edit/');
+    eliminar.setAttribute('href', '/dashboard/product/delete/' + id);
+    eliminar.setAttribute('type', 'submit');
+    eliminar.setAttribute('class', 'boto-eliminar');
+    eliminar.setAttribute('id-producte', id);
+
+    veure.innerHTML = "Veure"
+    modificar.innerHTML = "Editar"
+    eliminar.innerHTML = "Eliminar"
 
     tr.appendChild(tdid);
     tr.appendChild(tdna);
     tr.appendChild(tdde);
     tr.appendChild(tdpr);
     tr.appendChild(tdac);
-    tdac.appendChild(actions);
-    actions.appendChild(linkeshow)
-    actions.appendChild(linkedit)
-    actions.appendChild(linkdelete)
+    tdac.appendChild(formulari);
+    formulari.appendChild(veure)
+    formulari.appendChild(modificar)
+    formulari.appendChild(eliminar)
 
     entrades.appendChild(tr);
+
 }
-    
 
 
-
-
-</script> 
+</script>

@@ -19,7 +19,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     //return view('dashboard');
-    echo '<a href="/dashboard/product/index">Gestionar productes</a>';
+    return view('dashboard.product.index');
 });
 
 /* Product Controller*/
