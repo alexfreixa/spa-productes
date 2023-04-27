@@ -14,7 +14,7 @@ use App\Http\Controllers\ProductController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('dashboard.product.index');
 });
 
 Route::get('/dashboard', function () {
@@ -28,6 +28,6 @@ Route::get('/dashboard/product/show/{id}', [ProductController::class, 'show'])->
 Route::post('/dashboard/product', [ProductController::class, 'store'])->name('product.store');
 Route::get('/dashboard/product/{id}/edit/', [ProductController::class, 'edit'])->name('product.edit');
 Route::put('/dashboard/product/{id}', [ProductController::class, 'update'])->name('product.update');
-Route::delete('/dashboard/product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
+Route::delete('/dashboard/product/delete/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
 Route::get('/dashboard/product/index/', [ProductController::class,'index'])->name('product.index');
 
