@@ -13,11 +13,11 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * Petició AJAX per obtenir el Token CSRF
  */
 
-$.ajaxSetup({
+/*$.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
-});
+});*/
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
