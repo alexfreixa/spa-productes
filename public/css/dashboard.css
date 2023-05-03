@@ -1,43 +1,56 @@
-/* NAVBAR */
 
-div#navigation-container {
-  margin-left: 3vw;
+html {
+  height: 100%;
+  font-family: 'Lato', sans-serif;
+font-family: 'Poppins', sans-serif;
+}
+body {
+  min-height: 100%;
+  background-color: #f0f0f1;
 }
 
-.test {
-  
-}
-
-.navigation-bar {
-  background-color: #67caff;
+div#content {
+  max-width: 90%;
+  margin: 0 auto;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  flex-direction: row;
-  padding: 0px 5%;
+  text-align: center;
+  min-height: 100vh;
+} 
+
+
+#entrades > tr:nth-child(odd) {
+  background-color: #f6f7f7;
 }
 
-.navigation-bar ul {
-  padding: 0px;
-  margin: 0px;
+#entrades > tr:nth-child(even) {
+  background-color: #fff;
 }
 
-.navigation-bar li {
-  list-style-type: none;
-  display: inline;
+#entrades tr:nth-child(odd){
+  border-collapse: collapse !important;
+  border: 0px solid #f6f7f7;
 }
 
-.navigation-bar li a {
-  color: black;
-  font-size: 16px;
-  text-decoration: none;
-  padding: 5px 15px;
+#entrades tr:nth-child(even) {
+  border-collapse: collapse !important;
+  border: 0px solid #fff;
 }
 
-/* FI NAVBAR */
 
 
 /* CRUD */
+
+.producteDescripcio {
+  text-align: left;
+  padding: 9px 30px;
+}
+
+.taula {
+  border-collapse: collapse !important;
+  border: 1px solid #c3c4c7;
+}
 
 .missatge{
   background-color: #7b7b7b;
@@ -54,6 +67,14 @@ div#navigation-container {
 .main-content {
   max-width: 90%;
   margin: 0 auto;
+}
+
+.capTaula {
+  background-color: #fff;
+}
+
+.capTaula th {
+  padding: 10px;
 }
 
 .t-desc {
@@ -93,3 +114,87 @@ td.t-name {
     margin: 0 auto;
     width: 100%;
 }
+
+#taula-productes {
+  min-width: 85%;
+  max-width: 90%;
+  display: block;
+  margin: 0 auto;
+}
+
+table.taula {
+  min-width: 85%;
+}
+
+/* Formulari*/
+
+.boto {
+  padding: 2px 5px;
+    font-size: 12px;
+    display: inline-table;
+    background-color: #9dabff;
+    margin: 5px;
+    color: white;
+    font-weight: 700;
+    border: 0;
+    text-decoration: none;
+    min-width: 80px;
+    margin-right: 0px !important;
+    margin-left: 0px !important;
+}
+
+.boto.veure {
+  background-color:rgb(216, 216, 216);
+  color: black;
+}
+
+.boto.eliminar {
+  background-color: #c54c4c;
+}
+
+.boto:hover{
+  opacity: 0.8;
+}
+
+.boto.update {
+  background-color:green;
+  color:white;
+}
+
+
+button {
+  margin:0px !important;
+}
+
+input[type=text], input[type=number], textarea, select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+.formulari {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+/* Fi Formulari*/
