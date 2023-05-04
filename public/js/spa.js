@@ -133,14 +133,6 @@ function clickCrear(){
     generaFormulari(tipusFormulari);
 };
 
-function requestVeure(event){
-    const id = event.currentTarget.getAttribute('id-producte');
-    veureProducte("http://apis-laravel.test/api/products/" + id).then(function(dades) {
-        const accio = 'show';
-        gestionaDades(dades, accio);
-    });
-}
-
 function requestEliminar(event){
     const id = event.currentTarget.getAttribute('id-producte');
     eliminarProducte("http://apis-laravel.test/api/products/" + id).then(function(dades) {
@@ -230,15 +222,18 @@ const gestionaDades = (dades, accio, id) => {
 
 function botoEnrere(){
 
-    const content = document.getElementById("content");
+    const botoVeure = document.getElementsByClassName("boto veure")[0];
+    botoVeure.remove();
 
+    const content = document.getElementById("content");
     const enrere = document.createElement('a');
     enrere.addEventListener("click", clickCarregarProductes);
     enrere.setAttribute('href', '#');
     enrere.setAttribute('class', 'boto normal');
     enrere.innerHTML = "Enrere";
+    content.appendChild(enrere);
 
-    content.appendChild(enrere);    
+    
 }
 
 
