@@ -114,7 +114,12 @@ function clickModificar(event){
     //mostraMissatge('Producte modificat.', 'modificats');
 }
 
-function clickEliminar(event){
+function clickCrear(){
+    const tipusFormulari = 'crear';
+    generaFormulari(tipusFormulari);
+};
+
+function requestEliminar(event){
     const id = event.currentTarget.getAttribute('id-producte');
     eliminarProducte("http://apis-laravel.test/api/products/" + id).then(function(dades) {
         console.log(dades);
@@ -123,11 +128,48 @@ function clickEliminar(event){
     });
 }
 
-function clickCrear(){
-    /*const accio = 'crear';
-    gestionaDades(null, accio, null);*/
-    const tipusFormulari = 'crear';
-    generaFormulari(tipusFormulari);
+function requestCrear(event) {
+    event.preventDefault();
+
+    const urls = ["http://apis-laravel.test/api/products"];
+
+    const datos = {
+        product_name: document.getElementsByName("product_name")[0].value,
+        product_description: document.getElementById('product_description').value,
+        product_price: document.getElementById('product_price').value,
+    };
+
+    crearProducte(urls, datos).then(response => {
+        console.log(response);
+        clickCarregarProductes();
+        mostraMissatge('Producte creat correctament.', 'creat');
+
+    }).catch(error => {
+        console.error(error);
+    });
+}
+
+const crearProducte = async (urls, datos) => {
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        const arrayFetch = urls.map(url => fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify(datos),
+        }));
+
+        const respuestas = await Promise.all(arrayFetch);
+        const data = await Promise.all(respuestas.map(response => response.json()));
+
+        return data;
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error en la creación del producto');
+    }
 };
 
 function mostraMissatge(text, resposta){
@@ -194,44 +236,53 @@ const eliminarProducte = async (...urls) => {
     
 };
 
+
 function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
     
     neteja();
     
     console.log("Generant formulari...");
-    
+
     const contenidor = document.createElement('div');
     contenidor.setAttribute('class', 'formulari');
 
-    const formulari = document.createElement('form') 
-    formulari.setAttribute('method', 'POST');
-    formulari.setAttribute('action', `/dashboard/product/` + id);
+    const formulari = document.createElement('form');
 
-    formulari.appendChild(creaLabel('ID', 'id'));
-    formulari.appendChild(creaInput('text', 'id', id ));
+    //if (tipusFormulari == 'modificar' || tipusFormulari == 'crear')  {
+    formulari.setAttribute('method', 'post');
+        //formulari.setAttribute('action', `/dashboard/product/` + id);
+    //}
 
-    formulari.appendChild(creaLabel('Nom', 'nom'));
-    formulari.appendChild(creaInput('text', 'nom', nom ));
+    formulari.appendChild(creaLabel('ID', 'product_id'));
+    formulari.appendChild(creaInput('text', 'product_id', id ));
 
-    formulari.appendChild(creaLabel('Descripcio', 'descripcio'));
-    formulari.appendChild(creaInput('textarea', 'descripcio', descripcio ));
+    formulari.appendChild(creaLabel('Nom', 'product_name'));
+    formulari.appendChild(creaInput('text', 'product_name', nom ));
 
-    formulari.appendChild(creaLabel('Preu', 'preu'));
-    formulari.appendChild(creaInput('number', 'preu', preu ));
+    formulari.appendChild(creaLabel('Descripcio', 'product_description'));
+    formulari.appendChild(creaInput('textarea', 'product_description', descripcio ));
+
+    formulari.appendChild(creaLabel('Preu', 'product_price'));
+    formulari.appendChild(creaInput('number', 'product_price', preu ));
 
     const enrere = document.createElement('a');
     enrere.addEventListener("click", clickCarregarProductes);
     enrere.setAttribute('href', '#');
     enrere.setAttribute('class', 'boto normal');
-    enrere.innerHTML = "Enrere"
+    enrere.innerHTML = "Enrere";
 
     const submit = document.createElement('button');
-
-    submit.setAttribute('href', '/dashboard/product/update/' + id);
     submit.setAttribute('type', 'submit');
-    submit.setAttribute('class', 'boto update');
-    submit.setAttribute('id-producte', id);
-    submit.innerHTML = "Guardar"
+
+    if (tipusFormulari == 'modificar')  {
+        submit.setAttribute('class', 'boto update');
+        submit.setAttribute('id-producte', id);
+        submit.innerHTML = "Guardar";
+    } else if ( tipusFormulari == 'crear'){
+        submit.setAttribute('class', 'boto crear');
+        submit.innerHTML = "Crear";
+        submit.addEventListener('click', requestCrear);
+    }
 
     formulari.appendChild(enrere);
     formulari.appendChild(submit);
@@ -246,7 +297,11 @@ function creaInput(tipus, id, contingut){
     if (tipus != 'textarea') {
         input = document.createElement('input');
         input.setAttribute('type', tipus);
-        input.setAttribute('value', contingut);
+        if (contingut == undefined) {
+            input.setAttribute('value', '');
+        } else {
+            input.setAttribute('value', contingut);
+        }
 
         if (id == 'id') {
             input.setAttribute('readonly', 'readonly')
@@ -255,6 +310,12 @@ function creaInput(tipus, id, contingut){
 
     } else if(tipus == 'textarea') {
         input = document.createElement('textarea');
+        if (contingut == undefined) {
+            input.setAttribute('value', '');
+        } else {
+            input.setAttribute('value', contingut);
+            input.innerHTML = contingut;
+        }
     }
     
     input.setAttribute('id', id);
@@ -313,7 +374,7 @@ eliminar.setAttribute('href', '#');
 eliminar.setAttribute('id-producte', id);
 eliminar.setAttribute('accio', 'eliminar');
 eliminar.setAttribute('class', 'boto eliminar');
-eliminar.addEventListener('click', clickEliminar);
+eliminar.addEventListener('click', requestEliminar);
 
 veure.innerHTML = "Veure "
 modificar.innerHTML = "Modificar "
@@ -333,5 +394,7 @@ entrades.appendChild(tr);
 
 
 }
+
+
 
 

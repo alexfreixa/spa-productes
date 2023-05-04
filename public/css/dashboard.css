@@ -177,7 +177,7 @@ table.taula {
   opacity: 0.8;
 }
 
-.boto.update {
+.boto.update, .boto.crear {
   background-color:green;
   color:white;
 }
