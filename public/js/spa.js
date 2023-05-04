@@ -19,6 +19,10 @@ function netejaTaula(){
 function generaTaulaCRUD(){
     console.log("Generant taula CRUD");
 
+    const titol = document.createElement('h1');
+    titol.innerHTML = 'CRUD - API';
+    content.appendChild(titol);
+
     const controlsWrapper = document.createElement('div');
     controlsWrapper.setAttribute('class', 'controls-crud');
 
@@ -104,6 +108,16 @@ function clickCarregarProductes(){
 
 }
 
+function clickVeure(event){
+    const id = event.currentTarget.getAttribute('id-producte');
+    consultarDades("http://apis-laravel.test/api/products/" + id).then(function(dades) {
+        // Passem les dades obtingudes a la funció de visualización
+        const accio = 'show';
+        gestionaDades(dades, accio, id);
+    });
+    //mostraMissatge('Producte modificat.', 'modificats');
+}
+
 function clickModificar(event){
     const id = event.currentTarget.getAttribute('id-producte');
     consultarDades("http://apis-laravel.test/api/products/" + id).then(function(dades) {
@@ -118,6 +132,14 @@ function clickCrear(){
     const tipusFormulari = 'crear';
     generaFormulari(tipusFormulari);
 };
+
+function requestVeure(event){
+    const id = event.currentTarget.getAttribute('id-producte');
+    veureProducte("http://apis-laravel.test/api/products/" + id).then(function(dades) {
+        const accio = 'show';
+        gestionaDades(dades, accio);
+    });
+}
 
 function requestEliminar(event){
     const id = event.currentTarget.getAttribute('id-producte');
@@ -186,18 +208,37 @@ const gestionaDades = (dades, accio, id) => {
     netejaTaula();
 
     if (accio == 'mostrarTot') {
+     
         productes = dades[0].data.data;
         productes.forEach((producte) => {
             consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price);
         });
     } else if (accio == 'modificar') {
+        
         producte = dades[0].data;
-
         const tipusFormulari = 'modificar';
-
         generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price);
+    
+    } else if (accio == 'show') {
+
+        producte = dades[0].data;
+        consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price);
+        botoEnrere();
     }
 
+}
+
+function botoEnrere(){
+
+    const content = document.getElementById("content");
+
+    const enrere = document.createElement('a');
+    enrere.addEventListener("click", clickCarregarProductes);
+    enrere.setAttribute('href', '#');
+    enrere.setAttribute('class', 'boto normal');
+    enrere.innerHTML = "Enrere";
+
+    content.appendChild(enrere);    
 }
 
 
@@ -247,11 +288,17 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
     contenidor.setAttribute('class', 'formulari');
 
     const formulari = document.createElement('form');
+    const titol = document.createElement('h1');
 
-    //if (tipusFormulari == 'modificar' || tipusFormulari == 'crear')  {
-    formulari.setAttribute('method', 'post');
-        //formulari.setAttribute('action', `/dashboard/product/` + id);
-    //}
+    if (tipusFormulari == 'modificar')  {
+        titol.innerHTML = 'Modificant producte';
+        formulari.setAttribute('method', 'post');
+    } else if ( tipusFormulari == 'crear'){
+        formulari.setAttribute('method', 'post');
+        titol.innerHTML = 'Creant nou producte';
+    }
+
+    content.appendChild(titol);
 
     formulari.appendChild(creaLabel('ID', 'product_id'));
     formulari.appendChild(creaInput('text', 'product_id', id ));
@@ -335,63 +382,64 @@ function creaLabel(contingut, forlabel){
 }
 
 function consultaProductes(id, nom, descripcio, preu) {
-console.log("Generant contingut de la taula.");
-const entrades = document.getElementById("entrades");
-const tr = document.createElement('tr');
 
-tr.setAttribute("class", "producte");
+    console.log("Generant contingut de la taula.");
+    const entrades = document.getElementById("entrades");
+    const tr = document.createElement('tr');
 
-const tdid = document.createElement('td');
-const tdna = document.createElement('td');
-const tdde = document.createElement('td');
+    tr.setAttribute("class", "producte");
 
-tdde.setAttribute('class', 'producteDescripcio');
+    const tdid = document.createElement('td');
+    const tdna = document.createElement('td');
+    const tdde = document.createElement('td');
 
-const tdpr = document.createElement('td');
-const tdac =  document.createElement('td');
+    tdde.setAttribute('class', 'producteDescripcio');
 
-tdid.innerHTML = id;
-tdna.innerHTML = nom;
-tdde.innerHTML = descripcio;
-tdpr.innerHTML = preu;
+    const tdpr = document.createElement('td');
+    const tdac =  document.createElement('td');
 
-const veure =  document.createElement('a');
-const modificar =  document.createElement('a');
-const eliminar =  document.createElement('a');
+    tdid.innerHTML = id;
+    tdna.innerHTML = nom;
+    tdde.innerHTML = descripcio;
+    tdpr.innerHTML = preu;
 
-veure.setAttribute('href', '#');
-veure.setAttribute('id-producte', id);
-veure.setAttribute('class', 'boto veure');
-//veure.addEventListener('click', clickVeure);
+    const veure =  document.createElement('a');
+    const modificar =  document.createElement('a');
+    const eliminar =  document.createElement('a');
 
-modificar.setAttribute('href', '#');
-modificar.setAttribute('id-producte', id);
-modificar.setAttribute('accio', 'modificar');
-modificar.setAttribute('class', 'boto modificar');
-modificar.addEventListener('click', clickModificar);
+    veure.setAttribute('href', '#');
+    veure.setAttribute('id-producte', id);
+    veure.setAttribute('accio', 'show');
+    veure.setAttribute('class', 'boto veure');
+    veure.addEventListener('click', clickVeure);
 
-eliminar.setAttribute('href', '#');
-eliminar.setAttribute('id-producte', id);
-eliminar.setAttribute('accio', 'eliminar');
-eliminar.setAttribute('class', 'boto eliminar');
-eliminar.addEventListener('click', requestEliminar);
+    modificar.setAttribute('href', '#');
+    modificar.setAttribute('id-producte', id);
+    modificar.setAttribute('accio', 'modificar');
+    modificar.setAttribute('class', 'boto modificar');
+    modificar.addEventListener('click', clickModificar);
 
-veure.innerHTML = "Veure "
-modificar.innerHTML = "Modificar "
-eliminar.innerHTML = "Eliminar "
+    eliminar.setAttribute('href', '#');
+    eliminar.setAttribute('id-producte', id);
+    eliminar.setAttribute('accio', 'eliminar');
+    eliminar.setAttribute('class', 'boto eliminar');
+    eliminar.addEventListener('click', requestEliminar);
 
-tr.appendChild(tdid);
-tr.appendChild(tdna);
-tr.appendChild(tdde);
-tr.appendChild(tdpr);
-tr.appendChild(tdac);
+    veure.innerHTML = "Veure "
+    modificar.innerHTML = "Modificar "
+    eliminar.innerHTML = "Eliminar "
 
-tdac.appendChild(veure)
-tdac.appendChild(modificar)
-tdac.appendChild(eliminar)
+    tr.appendChild(tdid);
+    tr.appendChild(tdna);
+    tr.appendChild(tdde);
+    tr.appendChild(tdpr);
+    tr.appendChild(tdac);
 
-entrades.appendChild(tr);
+    tdac.appendChild(veure)
+    tdac.appendChild(modificar)
+    tdac.appendChild(eliminar)
 
+    entrades.appendChild(tr);
 
 }
 
