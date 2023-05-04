@@ -19,6 +19,33 @@ function netejaTaula(){
 function generaTaulaCRUD(){
     console.log("Generant taula CRUD");
 
+    const controlsWrapper = document.createElement('div');
+    controlsWrapper.setAttribute('class', 'controls-crud');
+
+    const crear = document.createElement('a');
+    crear.setAttribute('href', '#');
+    crear.setAttribute('class', 'boto crear');
+    crear.setAttribute('accio', 'crear');
+    crear.innerHTML = 'Crear Producte';
+    crear.addEventListener('click', clickCrear);
+
+    const missatge = document.createElement('div');
+    missatge.setAttribute('id', 'missatge');
+    missatge.setAttribute('class', 'missatge');
+    missatge.style.display = 'none';
+
+    const columna1 = document.createElement('div');
+    columna1.setAttribute('class', 'columna col-9');
+    columna1.appendChild(missatge);
+
+    const columna2 = document.createElement('div');
+    columna2.setAttribute('class', 'columna col-3');
+    columna2.appendChild(crear);
+
+    controlsWrapper.appendChild(columna1);
+    controlsWrapper.appendChild(columna2);
+    content.appendChild(controlsWrapper);   
+
     const taulaWrapper = document.createElement('div');
     taulaWrapper.setAttribute("id", "taula-productes");
 
@@ -63,31 +90,8 @@ function generaTaulaCRUD(){
 inicia();
 //generaTaulaCRUD();
 
-/*document.getElementById("carregar-productes").addEventListener("click", function(event) {
-    event.target.remove();
-    generaTaulaCRUD();
-    // Cridem a la funció asincrónica
-    consultarDades("http://apis-laravel.test/api/products").then(function(dades) {
-        // Passem les dades obtingudes a la funció de visualización
-        const accio = 'mostrarTot';
-        gestionaDades(dades, accio);
-    });
-});*/
-
-// Afegim un esdeveniment click
-/*document.getElementById("carregar-productes").addEventListener("click", function(event) {
-    event.target.remove();
-    generaTaulaCRUD();
-    // Cridem a la funció asincrónica
-    consultarDades("http://apis-laravel.test/api/products").then(function(dades) {
-        // Passem les dades obtingudes a la funció de visualización
-        const accio = 'mostrarTot';
-        gestionaDades(dades, accio);
-    });
-});*/
-
-function clickCarregarProductes(event){
-    event.target.remove();
+function clickCarregarProductes(){
+    
     neteja();
     generaTaulaCRUD();
     // Cridem a la funció asincrónica
@@ -96,6 +100,8 @@ function clickCarregarProductes(event){
         const accio = 'mostrarTot';
         gestionaDades(dades, accio);
     });
+    mostraMissatge('Productes carregats.', 'carregats');
+
 }
 
 function clickModificar(event){
@@ -105,43 +111,53 @@ function clickModificar(event){
         const accio = 'modificar';
         gestionaDades(dades, accio, id);
     });
+    //mostraMissatge('Producte modificat.', 'modificats');
 }
 
+function clickEliminar(event){
+    const id = event.currentTarget.getAttribute('id-producte');
+    eliminarProducte("http://apis-laravel.test/api/products/" + id).then(function(dades) {
+        console.log(dades);
+        clickCarregarProductes();
+        mostraMissatge('Producte eliminat.', 'eliminat');
+    });
+}
 
-// Funció asíncrona per accedir a una API
-const obtenirDades = async (url) => {
-try{
-    const response = await fetch(url);
-    if (response.ok){
-        const data = await response.json();
+function clickCrear(){
+    /*const accio = 'crear';
+    gestionaDades(null, accio, null);*/
+    const tipusFormulari = 'crear';
+    generaFormulari(tipusFormulari);
+};
 
-        return data;
-    } else {
-        console.log(response.status); // 404
-    }
-} catch (err) {
-    console.log(err);
-};
-};
+function mostraMissatge(text, resposta){
+    const msg = document.getElementById('missatge');
+    msg.innerHTML = text;
+    msg.setAttribute('class', 'msg ' + resposta);
+    msg.style.display = '';
+}
 
 
 // Funció que mostres les dades de la promesa que se li passa
 const gestionaDades = (dades, accio, id) => {
 
-netejaTaula();
+    netejaTaula();
 
-if (accio == 'mostrarTot') {
-    productes = dades[0].data.data;
-    productes.forEach((producte) => {
-        consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price);
-    });
-} else if (accio == 'modificar') {
+    if (accio == 'mostrarTot') {
+        productes = dades[0].data.data;
+        productes.forEach((producte) => {
+            consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price);
+        });
+    } else if (accio == 'modificar') {
+        producte = dades[0].data;
 
-    producte = dades[0].data;
-        formulariModifica(producte.id, producte.product_name, producte.product_description, producte.product_price);
+        const tipusFormulari = 'modificar';
+
+        generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price);
     }
 
 }
+
 
 
 const consultarDades = async (...urls) => {
@@ -156,16 +172,34 @@ const consultarDades = async (...urls) => {
     }
 };
 
-function formulariModifica(id, nom, descripcio, preu) {
+const eliminarProducte = async (...urls) => {
 
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const arrayFetch = urls.map((url) => fetch(url,{
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+            }
+        }));
+        
+        const response = await Promise.all(arrayFetch);
+        const data = await response.map((result) => result.json());
+        const dadesFinals = Promise.all(data);
+        
+        return dadesFinals;
+    } catch (err) {
+        console.log(err);
+    }
+    
+};
+
+function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
+    
     neteja();
-
-    console.log("Generant formulari per modificar producte.");
-    console.log(id);
-    console.log(nom);
-    console.log(descripcio);
-    console.log(preu);
-
+    
+    console.log("Generant formulari...");
+    
     const contenidor = document.createElement('div');
     contenidor.setAttribute('class', 'formulari');
 
@@ -184,8 +218,6 @@ function formulariModifica(id, nom, descripcio, preu) {
 
     formulari.appendChild(creaLabel('Preu', 'preu'));
     formulari.appendChild(creaInput('number', 'preu', preu ));
-
-
 
     const enrere = document.createElement('a');
     enrere.addEventListener("click", clickCarregarProductes);
@@ -262,30 +294,26 @@ tdna.innerHTML = nom;
 tdde.innerHTML = descripcio;
 tdpr.innerHTML = preu;
 
-const formulari =  document.createElement('form');
-
-formulari.setAttribute('method', 'POST');
-formulari.setAttribute('action', `/dashboard/product/delete/` + id);
-
 const veure =  document.createElement('a');
 const modificar =  document.createElement('a');
-const eliminar =  document.createElement('button');
+const eliminar =  document.createElement('a');
 
-
-veure.setAttribute('href', '/dashboard/product/show/' + id);
+veure.setAttribute('href', '#');
 veure.setAttribute('id-producte', id);
 veure.setAttribute('class', 'boto veure');
+//veure.addEventListener('click', clickVeure);
 
-//modificar.setAttribute('href', '/dashboard/product/' + id + '/edit/');
 modificar.setAttribute('href', '#');
 modificar.setAttribute('id-producte', id);
+modificar.setAttribute('accio', 'modificar');
 modificar.setAttribute('class', 'boto modificar');
 modificar.addEventListener('click', clickModificar);
 
-eliminar.setAttribute('href', '/dashboard/product/delete/' + id);
-eliminar.setAttribute('type', 'submit');
-eliminar.setAttribute('class', 'boto eliminar');
+eliminar.setAttribute('href', '#');
 eliminar.setAttribute('id-producte', id);
+eliminar.setAttribute('accio', 'eliminar');
+eliminar.setAttribute('class', 'boto eliminar');
+eliminar.addEventListener('click', clickEliminar);
 
 veure.innerHTML = "Veure "
 modificar.innerHTML = "Modificar "
@@ -296,10 +324,10 @@ tr.appendChild(tdna);
 tr.appendChild(tdde);
 tr.appendChild(tdpr);
 tr.appendChild(tdac);
-tdac.appendChild(formulari);
-formulari.appendChild(veure)
-formulari.appendChild(modificar)
-formulari.appendChild(eliminar)
+
+tdac.appendChild(veure)
+tdac.appendChild(modificar)
+tdac.appendChild(eliminar)
 
 entrades.appendChild(tr);
 

@@ -7,14 +7,12 @@ font-family: 'Poppins', sans-serif;
 body {
   min-height: 100%;
   background-color: #f0f0f1;
+  margin: 0 auto;
+  width: 96%;
 }
 
 div#content {
-  max-width: 90%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  max-width: 100%;
   text-align: center;
   min-height: 100vh;
 } 
@@ -41,6 +39,23 @@ div#content {
 
 
 /* CRUD */
+.controls-crud {
+  display: flex;
+  position: relative;
+  width: 90%;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.col-9 {
+  width: 70%;
+  text-align:left;
+}
+
+.col-3 {
+  width: 30%;
+  text-align: right;
+}
 
 .producteDescripcio {
   text-align: left;
@@ -52,12 +67,18 @@ div#content {
   border: 1px solid #c3c4c7;
 }
 
-.missatge{
-  background-color: #7b7b7b;
-  color: white;
-  padding: 17px;
+#missatge {
+  background-color: #9dabff;
+  color: #fff;
+  padding: 12px 11px;
   border-radius: 11px;
-  margin-bottom: 16px;
+  margin: 18px 0px;
+  animation: notificacio 1.3s forwards 0.1s;
+}
+
+@keyframes notificacio {
+  from {background-color: #fff;}
+  to {background-color: #9dabff;}
 }
 
 .correcte {

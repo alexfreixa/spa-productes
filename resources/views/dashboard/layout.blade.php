@@ -17,7 +17,9 @@
 <body id="body" class="">
     @include('dashboard.header')
     <div id="content">
+        
     </div>
+    
     @include('dashboard.footer')
  </body>
  <script src='{{asset("/js/spa.js")}}'></script>
