@@ -96,7 +96,6 @@ function clickCarregarProductes(event){
         const accio = 'mostrarTot';
         gestionaDades(dades, accio);
     });
-
 }
 
 function clickModificar(event){
