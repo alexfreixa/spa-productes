@@ -226,3 +226,17 @@ form {
 }
 
 /* Fi Formulari*/
+
+#imatges {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 85%;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+#imatges img {
+  width: 25%;
+  min-width: 100px;
+  padding: 23px;
+}

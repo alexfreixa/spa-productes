@@ -112,7 +112,7 @@ function clickVeure(event){
     const id = event.currentTarget.getAttribute('id-producte');
     consultarDades("http://apis-laravel.test/api/products/" + id).then(function(dades) {
         // Passem les dades obtingudes a la funció de visualización
-        const accio = 'show';
+        const accio = 'mostraUn';
         gestionaDades(dades, accio, id);
     });
     //mostraMissatge('Producte modificat.', 'modificats');
@@ -210,6 +210,7 @@ const crearProducte = async (url, datos) => {
       });
   
       const data = await respuesta.json();
+
       return data;
     } catch (error) {
         console.error(error);
@@ -217,42 +218,12 @@ const crearProducte = async (url, datos) => {
     }
   };
 
-  // Select your input type file and store it in a variable
-/*const inputArxiu = document.getElementById('product_image');
-
-// This will upload the file after having read it
-const upload = (file) => {
-  fetch('http://apis-laravel.test/api/products', { // Your POST endpoint
-    method: 'POST',
-    headers: {
-        'X-CSRF-TOKEN': csrfToken
-    },
-    body: file // This is your file object
-  }).then(
-    response => response.json() // if the response is a JSON object
-  ).then(
-    success => console.log("Imatge pujada amb exit: " + success) // Handle the success response object
-  ).catch(
-    error => console.log(error) // Handle the error response object
-  );
-};*/
-
-// Event handler executed when a file is selected
-//const onSelectFile = () => upload(inputArxiu.files[0]);
-
-// Add a listener on your input
-// It will be triggered when a file will be selected
-//inputArxiu.addEventListener('change', onSelectFile, false);
-
-  
-
 function mostraMissatge(text, resposta){
     const msg = document.getElementById('missatge');
     msg.innerHTML = text;
     msg.setAttribute('class', 'msg ' + resposta);
     msg.style.display = '';
 }
-
 
 // Funció que mostres les dades de la promesa que se li passa
 const gestionaDades = (dades, accio, id) => {
@@ -263,7 +234,7 @@ const gestionaDades = (dades, accio, id) => {
      
         productes = dades[0].data.data;
         productes.forEach((producte) => {
-            consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image);
+            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image);
         });
     } else if (accio == 'modificar') {
         
@@ -271,10 +242,10 @@ const gestionaDades = (dades, accio, id) => {
         const tipusFormulari = 'modificar';
         generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price);
     
-    } else if (accio == 'show') {
-
+    } else if (accio == 'mostraUn') {
         producte = dades[0].data;
-        consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image);
+        origen = dades[0].origin;
+        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, origen);
         botoEnrere();
     }
 
@@ -445,7 +416,7 @@ function creaLabel(contingut, forlabel){
     return label;
 }
 
-function consultaProductes(id, nom, descripcio, preu) {
+function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen) {
 
     console.log("Generant contingut de la taula.");
     const entrades = document.getElementById("entrades");
@@ -473,7 +444,7 @@ function consultaProductes(id, nom, descripcio, preu) {
 
     veure.setAttribute('href', '#');
     veure.setAttribute('id-producte', id);
-    veure.setAttribute('accio', 'show');
+    veure.setAttribute('accio', 'monstraUn');
     veure.setAttribute('class', 'boto veure');
     veure.addEventListener('click', clickVeure);
 
@@ -504,6 +475,20 @@ function consultaProductes(id, nom, descripcio, preu) {
     tdac.appendChild(eliminar)
 
     entrades.appendChild(tr);
+
+    if (accio == 'mostraUn') {
+
+        const imgs = document.createElement('div');
+        imgs.setAttribute('id', 'imatges');
+
+        //imatges.forEach(imatge => {
+            const foto = document.createElement('img');
+            foto.setAttribute("src", origen + "/" + imatges);
+            imgs.appendChild(foto);
+        //});
+        
+        content.appendChild(imgs);
+    }
 
 }
 
