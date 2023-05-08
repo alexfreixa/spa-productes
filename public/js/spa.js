@@ -212,8 +212,8 @@ const crearProducte = async (url, datos) => {
       const data = await respuesta.json();
       return data;
     } catch (error) {
-      console.error(error);
-      throw new Error('Error en la creación del producto');
+        console.error(error);
+        throw new Error('Error en la creación del producto');
     }
   };
 
@@ -263,7 +263,7 @@ const gestionaDades = (dades, accio, id) => {
      
         productes = dades[0].data.data;
         productes.forEach((producte) => {
-            consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price);
+            consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image);
         });
     } else if (accio == 'modificar') {
         
@@ -274,7 +274,7 @@ const gestionaDades = (dades, accio, id) => {
     } else if (accio == 'show') {
 
         producte = dades[0].data;
-        consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price);
+        consultaProductes(producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image);
         botoEnrere();
     }
 
@@ -421,7 +421,6 @@ function creaInput(tipus, id, contingut){
         input = document.createElement('input');
         input.setAttribute('type', tipus);
         input.setAttribute('accept', 'image/*');
-        //input.addEventListener('change', onSelectFile, false);
         if (contingut == undefined) {
             input.setAttribute('value', '');
         } else {
