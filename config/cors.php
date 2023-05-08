@@ -25,7 +25,7 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => ['Access-Control-Allow-Origin'],
+    'exposed_headers' => ['spa-productes.test'],
 
     'max_age' => 0,
 

@@ -151,7 +151,11 @@ function requestCrear(event) {
         product_name: document.getElementsByName("product_name")[0].value,
         product_description: document.getElementById('product_description').value,
         product_price: document.getElementById('product_price').value,
+        product_image: document.getElementById("product_image").files[0]
+        
     };
+
+    console.log(datos.product_image);
 
     crearProducte(urls, datos).then(response => {
         console.log(response);
@@ -163,7 +167,7 @@ function requestCrear(event) {
     });
 }
 
-const crearProducte = async (urls, datos) => {
+/*const crearProducte = async (urls, datos) => {
     try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -184,7 +188,63 @@ const crearProducte = async (urls, datos) => {
         console.error(err);
         throw new Error('Error en la creación del producto');
     }
-};
+};*/
+
+const crearProducte = async (url, datos) => {
+    try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  
+      // Crear un objeto FormData para enviar la imagen y los demás datos del formulario
+      const formData = new FormData();
+      formData.append('product_name', datos.product_name);
+      formData.append('product_description', datos.product_description);
+      formData.append('product_price', datos.product_price);
+      formData.append('product_image', datos.product_image);
+  
+      const respuesta = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': csrfToken
+        },
+        body: formData
+      });
+  
+      const data = await respuesta.json();
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error en la creación del producto');
+    }
+  };
+
+  // Select your input type file and store it in a variable
+/*const inputArxiu = document.getElementById('product_image');
+
+// This will upload the file after having read it
+const upload = (file) => {
+  fetch('http://apis-laravel.test/api/products', { // Your POST endpoint
+    method: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': csrfToken
+    },
+    body: file // This is your file object
+  }).then(
+    response => response.json() // if the response is a JSON object
+  ).then(
+    success => console.log("Imatge pujada amb exit: " + success) // Handle the success response object
+  ).catch(
+    error => console.log(error) // Handle the error response object
+  );
+};*/
+
+// Event handler executed when a file is selected
+//const onSelectFile = () => upload(inputArxiu.files[0]);
+
+// Add a listener on your input
+// It will be triggered when a file will be selected
+//inputArxiu.addEventListener('change', onSelectFile, false);
+
+  
 
 function mostraMissatge(text, resposta){
     const msg = document.getElementById('missatge');
@@ -232,11 +292,8 @@ function botoEnrere(){
     enrere.setAttribute('class', 'boto normal');
     enrere.innerHTML = "Enrere";
     content.appendChild(enrere);
-
-    
+  
 }
-
-
 
 const consultarDades = async (...urls) => {
     try {
@@ -307,6 +364,9 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
     formulari.appendChild(creaLabel('Preu', 'product_price'));
     formulari.appendChild(creaInput('number', 'product_price', preu ));
 
+    formulari.appendChild(creaLabel('Imatge', 'product_image'));
+    formulari.appendChild(creaInput('file', 'product_image', preu ));
+
     const enrere = document.createElement('a');
     enrere.addEventListener("click", clickCarregarProductes);
     enrere.setAttribute('href', '#');
@@ -336,7 +396,7 @@ function creaInput(tipus, id, contingut){
 
     let input;
 
-    if (tipus != 'textarea') {
+    if (tipus == 'text' || tipus == 'number') {
         input = document.createElement('input');
         input.setAttribute('type', tipus);
         if (contingut == undefined) {
@@ -349,9 +409,19 @@ function creaInput(tipus, id, contingut){
             input.setAttribute('readonly', 'readonly')
         } 
 
-
     } else if(tipus == 'textarea') {
         input = document.createElement('textarea');
+        if (contingut == undefined) {
+            input.setAttribute('value', '');
+        } else {
+            input.setAttribute('value', contingut);
+            input.innerHTML = contingut;
+        }
+    } else if(tipus == 'file') {
+        input = document.createElement('input');
+        input.setAttribute('type', tipus);
+        input.setAttribute('accept', 'image/*');
+        //input.addEventListener('change', onSelectFile, false);
         if (contingut == undefined) {
             input.setAttribute('value', '');
         } else {
