@@ -187,7 +187,7 @@ button {
   margin:0px !important;
 }
 
-input[type=text], input[type=number], textarea, select {
+input[type=text], input[type=number], input[type=file], textarea, select {
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
@@ -225,6 +225,10 @@ form {
     padding: 5vh 12vw;
 }
 
+input#product_id {
+  background-color: #dbdbdb;
+}
+
 /* Fi Formulari*/
 
 #imatges {
@@ -233,6 +237,7 @@ form {
   min-width: 85%;
   max-width: 90%;
   margin: 0 auto;
+  justify-content: space-around;
 }
 
 #imatges img {

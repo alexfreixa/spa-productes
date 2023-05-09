@@ -13,11 +13,9 @@ function inicia(){
 function netejaTaula(){
     const entradesTaula = document.getElementById("entrades");
     entradesTaula.innerHTML = "";
-    console.log("Taula netejada.");
 }
 
 function generaTaulaCRUD(){
-    console.log("Generant taula CRUD");
 
     const titol = document.createElement('h1');
     titol.innerHTML = 'CRUD - API';
@@ -136,7 +134,6 @@ function clickCrear(){
 function requestEliminar(event){
     const id = event.currentTarget.getAttribute('id-producte');
     eliminarProducte("http://apis-laravel.test/api/products/" + id).then(function(dades) {
-        console.log(dades);
         clickCarregarProductes();
         mostraMissatge('Producte eliminat.', 'eliminat');
     });
@@ -147,15 +144,21 @@ function requestCrear(event) {
 
     const urls = ["http://apis-laravel.test/api/products"];
 
+    const extraImages = document.getElementsByName("product_extra_images[]");
+
+    let extraImagesArray = [];
+    for (let i = 0; i < extraImages.length; i++) {
+        extraImagesArray.push(extraImages[i].files[0]);
+    }
+
     const datos = {
         product_name: document.getElementsByName("product_name")[0].value,
         product_description: document.getElementById('product_description').value,
         product_price: document.getElementById('product_price').value,
-        product_image: document.getElementById("product_image").files[0]
-        
+        product_image: document.getElementById("product_image").files[0],
+        //product_extra_images: document.getElementsByName("product_extra_images[]")[0].files[0],
+        product_extra_images: extraImagesArray,
     };
-
-    console.log(datos.product_image);
 
     crearProducte(urls, datos).then(response => {
         console.log(response);
@@ -167,29 +170,6 @@ function requestCrear(event) {
     });
 }
 
-/*const crearProducte = async (urls, datos) => {
-    try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        const arrayFetch = urls.map(url => fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
-            body: JSON.stringify(datos),
-        }));
-
-        const respuestas = await Promise.all(arrayFetch);
-        const data = await Promise.all(respuestas.map(response => response.json()));
-
-        return data;
-    } catch (err) {
-        console.error(err);
-        throw new Error('Error en la creación del producto');
-    }
-};*/
-
 const crearProducte = async (url, datos) => {
     try {
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -200,6 +180,11 @@ const crearProducte = async (url, datos) => {
       formData.append('product_description', datos.product_description);
       formData.append('product_price', datos.product_price);
       formData.append('product_image', datos.product_image);
+
+      const extraImages = datos.product_extra_images;
+      for (let i = 0; i < extraImages.length; i++) {
+          formData.append('product_extra_images[]', extraImages[i]);
+      }
   
       const respuesta = await fetch(url, {
         method: 'POST',
@@ -245,7 +230,7 @@ const gestionaDades = (dades, accio, id) => {
     } else if (accio == 'mostraUn') {
         producte = dades[0].data;
         origen = dades[0].origin;
-        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, origen);
+        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, origen, producte.product_extra_images);
         botoEnrere();
     }
 
@@ -304,8 +289,6 @@ const eliminarProducte = async (...urls) => {
 function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
     
     neteja();
-    
-    console.log("Generant formulari...");
 
     const contenidor = document.createElement('div');
     contenidor.setAttribute('class', 'formulari');
@@ -335,8 +318,11 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
     formulari.appendChild(creaLabel('Preu', 'product_price'));
     formulari.appendChild(creaInput('number', 'product_price', preu ));
 
-    formulari.appendChild(creaLabel('Imatge', 'product_image'));
+    formulari.appendChild(creaLabel('Imatge principal', 'product_image'));
     formulari.appendChild(creaInput('file', 'product_image', preu ));
+    
+    formulari.appendChild(creaLabel('Imatges Extra', 'product_extra_images'));
+    formulari.appendChild(creaInput('arrayImatges', 'product_extra_images', preu ));
 
     const enrere = document.createElement('a');
     enrere.addEventListener("click", clickCarregarProductes);
@@ -376,8 +362,9 @@ function creaInput(tipus, id, contingut){
             input.setAttribute('value', contingut);
         }
 
-        if (id == 'id') {
+        if (id == 'product_id') {
             input.setAttribute('readonly', 'readonly')
+            input.setAttribute('class', 'deshabilitat')
         } 
 
     } else if(tipus == 'textarea') {
@@ -398,15 +385,39 @@ function creaInput(tipus, id, contingut){
             input.setAttribute('value', contingut);
             input.innerHTML = contingut;
         }
+    } else if(tipus == 'arrayImatges') {
+
+        imatgesExtra = 3;
+        tipus = 'file';
+
+        inputs = document.createElement('div');
+        inputs.setAttribute('class', 'imatges-extra')
+
+        for (i = 0; i < imatgesExtra; i++) {
+            input = document.createElement('input');
+            input.setAttribute('type', tipus);
+            input.setAttribute('name', id+"[]");
+            input.setAttribute('id', id + i);
+            input.setAttribute('accept', 'image/*');
+
+            if (contingut == undefined) {
+                input.setAttribute('value', '');
+            } else {
+                input.setAttribute('value', contingut);
+                input.innerHTML = contingut;
+            }
+            inputs.appendChild(input);
+        }
+
+        return inputs;
+
     }
-    
+
     input.setAttribute('id', id);
     input.setAttribute('name', id);
 
     return input;
 
-    
-    
 }
 
 function creaLabel(contingut, forlabel){
@@ -416,9 +427,8 @@ function creaLabel(contingut, forlabel){
     return label;
 }
 
-function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen) {
+function consultaProductes(accio, id, nom, descripcio, preu, rutaImatge, origen, imatgesExtra) {
 
-    console.log("Generant contingut de la taula.");
     const entrades = document.getElementById("entrades");
     const tr = document.createElement('tr');
 
@@ -481,11 +491,18 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen) {
         const imgs = document.createElement('div');
         imgs.setAttribute('id', 'imatges');
 
-        //imatges.forEach(imatge => {
+        // Imatge principal
+        const foto = document.createElement('img');
+        foto.setAttribute("src", origen + "/" + rutaImatge);
+        imgs.appendChild(foto);
+       
+        const jsonImatges = JSON.parse(imatgesExtra);
+ 
+        for(i = 0; i < jsonImatges.length; i++) {
             const foto = document.createElement('img');
-            foto.setAttribute("src", origen + "/" + imatges);
+            foto.setAttribute("src", origen + "/" + jsonImatges[i]);
             imgs.appendChild(foto);
-        //});
+        }
         
         content.appendChild(imgs);
     }

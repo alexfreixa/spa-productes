@@ -12,6 +12,7 @@ class Product extends Model {
         'product_description',
         'product_price',
         'product_image',
+        'product_extra_images',
     ];
 
     public function run(): void
