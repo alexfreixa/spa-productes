@@ -237,6 +237,10 @@ input#product_id {
 
 /* Fi Formulari*/
 
+img.imatge-index {
+  max-width: 100px;
+}
+
 .wrapperImatge {
   margin: 11px;
 }

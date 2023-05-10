@@ -161,52 +161,8 @@ function generaGaleriaControls() {
     content.appendChild(controlsWrapper);
 }
 
-/*
-
-<section class="features">
-    <div id="image-mosaic">
-        <a href="images/DOBBY 4006-900.jpg">
-            <div style="background-image: url('images/DOBBY 4006-900.jpg')" class="card"></div>
-        </a>
-    </div>
- </section>
-
-*/
-
 async function generaGaleriaTaula() {
     return new Promise((resolve, reject) => {
-        /*const taulaWrapper = document.createElement('div');
-        taulaWrapper.setAttribute("id", "taula-productes");
-
-        const taula = document.createElement('table');
-
-        taula.setAttribute("cellspacing", 0);
-        taula.setAttribute("cellpadding", 0);
-        taula.setAttribute("class", "taula");
-
-        const cap = document.createElement('tr');
-
-        cap.setAttribute('class', 'capTaula');
-
-        const capId = document.createElement('th');
-        capId.innerHTML = 'ID';
-        const capNo = document.createElement('th');
-        capNo.innerHTML = 'Nom';
-        const capOp = document.createElement('th');
-        capOp.innerHTML = 'Opcions';
-
-        const cosTaula = document.createElement('tbody');
-        cosTaula.setAttribute("id", "entrades");
-
-        content.appendChild(taulaWrapper);
-        taulaWrapper.appendChild(taula);
-        taula.appendChild(cap);
-
-        cap.appendChild(capId);
-        cap.appendChild(capNo);
-        cap.appendChild(capOp);
-
-        taula.appendChild(cosTaula);*/
 
         const galeriaWrapper = document.createElement('div');
         galeriaWrapper.setAttribute("id", "image-mosaic");
@@ -405,10 +361,13 @@ const gestionaDades = (dades, accio, id) => {
     if (accio == 'mostraTotsProductes') {
 
         const productes = dades[0].product_data;
+        const origen = dades[0].origin;
+
+        console.log(productes);
 
         productes.forEach((producte) => {
-            console.log(producte);
-            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.main_image, producte.product_images);
+            //console.log(producte);
+            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
         });
 
 
@@ -738,7 +697,9 @@ function eliminarImatge() {
     
 }
 
-function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen, imatgesExtra) {
+function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, imatgesExtra, origen) {
+
+
     
     /*console.log(id);
     console.log(nom);
@@ -746,6 +707,9 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen, im
     console.log(preu);
     console.log(imatges);
     console.log(origen);*/
+
+    console.log(imatgePrincipal);
+    //console.log(imatgesExtra);
 
     const entrades = document.getElementById("entrades");
     const tr = document.createElement('tr');
@@ -762,8 +726,14 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen, im
     const tdpr = document.createElement('td');
     const tdac = document.createElement('td');
 
+    const imatgeProducte = document.createElement('img');
+    imatgeProducte.setAttribute('src', origen + "/" + imatgePrincipal.file)
+    imatgeProducte.setAttribute('class', 'imatge-index')
+
+    tdim.appendChild(imatgeProducte);
+
     tdid.innerHTML = id;
-    tdim.innerHTML = imatges;
+    //tdim.innerHTML = origen + "/" + imatgePrincipal.file;
     tdna.innerHTML = nom;
     tdde.innerHTML = descripcio;
     tdpr.innerHTML = preu;
