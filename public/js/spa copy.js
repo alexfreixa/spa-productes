@@ -93,8 +93,6 @@ async function generaCRUDTaula() {
 
         const capId = document.createElement('th');
         capId.innerHTML = 'ID';
-        const capImg = document.createElement('th');
-        capImg.innerHTML = 'Imatge';
         const capNo = document.createElement('th');
         capNo.innerHTML = 'Nom';
         const capDe = document.createElement('th');
@@ -112,7 +110,6 @@ async function generaCRUDTaula() {
         taula.appendChild(cap);
 
         cap.appendChild(capId);
-        cap.appendChild(capImg);
         cap.appendChild(capNo);
         cap.appendChild(capDe);
         cap.appendChild(capPr);
@@ -175,38 +172,6 @@ function generaGaleriaControls() {
 
 async function generaGaleriaTaula() {
     return new Promise((resolve, reject) => {
-        /*const taulaWrapper = document.createElement('div');
-        taulaWrapper.setAttribute("id", "taula-productes");
-
-        const taula = document.createElement('table');
-
-        taula.setAttribute("cellspacing", 0);
-        taula.setAttribute("cellpadding", 0);
-        taula.setAttribute("class", "taula");
-
-        const cap = document.createElement('tr');
-
-        cap.setAttribute('class', 'capTaula');
-
-        const capId = document.createElement('th');
-        capId.innerHTML = 'ID';
-        const capNo = document.createElement('th');
-        capNo.innerHTML = 'Nom';
-        const capOp = document.createElement('th');
-        capOp.innerHTML = 'Opcions';
-
-        const cosTaula = document.createElement('tbody');
-        cosTaula.setAttribute("id", "entrades");
-
-        content.appendChild(taulaWrapper);
-        taulaWrapper.appendChild(taula);
-        taula.appendChild(cap);
-
-        cap.appendChild(capId);
-        cap.appendChild(capNo);
-        cap.appendChild(capOp);
-
-        taula.appendChild(cosTaula);*/
 
         const galeriaWrapper = document.createElement('div');
         galeriaWrapper.setAttribute("id", "image-mosaic");
@@ -403,20 +368,17 @@ function mostraMissatge(text, resposta) {
 const gestionaDades = (dades, accio, id) => {
 
     if (accio == 'mostraTotsProductes') {
-
-        const productes = dades[0].product_data;
-
+        
+        productes = dades[0].data.data;
         productes.forEach((producte) => {
-            console.log(producte);
-            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.main_image, producte.product_images);
+            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image);
         });
-
 
     } else if (accio == 'modificarProducte') {
 
         producte = dades[0].data;
         const tipusFormulari = 'modificarProducte';
-        generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, producte.product_extra_images);
+        generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price);
 
     } else if (accio == 'mostraUnProducte') {
 
@@ -489,7 +451,7 @@ const requestEliminar = async (...urls) => {
 
 
 
-function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincipal, imatgesExtra) {
+function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
 
     neteja();
 
@@ -526,23 +488,6 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
         formulari.appendChild(creaLabel('Preu', 'product_price'));
         formulari.appendChild(creaInput('number', 'product_price', preu));
 
-        const wrapImgInput = document.createElement('div');
-        wrapImgInput.setAttribute('class', 'wrapFromImgs');
-
-        const col1 = document.createElement('div'); 
-        col1.setAttribute('class', 'span-6');
-
-        const col2 = document.createElement('div'); 
-        col2.setAttribute('class', 'span-6');
-
-        wrapImgInput.appendChild(col1);
-        wrapImgInput.appendChild(col2);
-
-        col2.appendChild(creaLabel('Imatge principal', 'product_image'));
-        col2.appendChild(creaInput('number', 'product_image', imagePrincipal));
-
-        formulari.appendChild(wrapImgInput);
-        
     } else if (tipusFormulari == 'novaImatge') {
 
         formulari.appendChild(creaLabel('Selecciona la imatge que vols pujar:', 'imatge'));
@@ -643,32 +588,6 @@ function creaInput(tipus, id, contingut) {
         input.setAttribute('name', id);
         return input;
 
-    } else if(tipus == 'arrayImatges') {
-
-        imatgesExtra = 3;
-        tipus = 'file';
-
-        inputs = document.createElement('div');
-        inputs.setAttribute('class', 'imatges-extra')
-
-        for (i = 0; i < imatgesExtra; i++) {
-            input = document.createElement('input');
-            input.setAttribute('type', tipus);
-            input.setAttribute('name', id+"[]");
-            input.setAttribute('id', id + i);
-            input.setAttribute('accept', 'image/*');
-
-            if (contingut == undefined) {
-                input.setAttribute('value', '');
-            } else {
-                input.setAttribute('value', contingut);
-                input.innerHTML = contingut;
-            }
-            inputs.appendChild(input);
-        }
-
-        return inputs;
-
     }
 
     input.setAttribute('id', id);
@@ -688,9 +607,8 @@ function creaLabel(contingut, forlabel) {
 function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
 
     const graella = document.getElementById("image-mosaic");
-
     const wrapImatge = document.createElement("div");
-    //wrapImatge.setAttribute("href", "#" + rutaImatge);
+
     wrapImatge.setAttribute("class", "wrapperImatge");
     
     const cartaImatge = document.createElement("div");
@@ -698,8 +616,6 @@ function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
     cartaImatge.setAttribute('class', 'card');
 
     wrapImatge.appendChild(cartaImatge);
-    //graella.appendChild(wrapImatge);
-
 
     const veure = document.createElement('a');
     const eliminar = document.createElement('a');
@@ -734,18 +650,15 @@ function carregaImatgeIndividual() {
     
 }*/
 
-function eliminarImatge() {
-    
+function eliminarImatge(event) {
+    const id = event.currentTarget.getAttribute('id-element');
+    requestEliminar("http://apis-laravel.test/api/images/" + id).then(function (dades) {
+        generaGaleria();
+        mostraMissatge('Imatge eliminada.', 'eliminat');
+    });
 }
 
-function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen, imatgesExtra) {
-    
-    /*console.log(id);
-    console.log(nom);
-    console.log(descripcio);
-    console.log(preu);
-    console.log(imatges);
-    console.log(origen);*/
+function consultaProductes(accio, id, nom, descripcio, preu, rutaImatge, origen, imatgesExtra) {
 
     const entrades = document.getElementById("entrades");
     const tr = document.createElement('tr');
@@ -753,7 +666,6 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen, im
     tr.setAttribute("class", "entrada-taula");
 
     const tdid = document.createElement('td');
-    const tdim = document.createElement('td');
     const tdna = document.createElement('td');
     const tdde = document.createElement('td');
 
@@ -763,7 +675,6 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen, im
     const tdac = document.createElement('td');
 
     tdid.innerHTML = id;
-    tdim.innerHTML = imatges;
     tdna.innerHTML = nom;
     tdde.innerHTML = descripcio;
     tdpr.innerHTML = preu;
@@ -795,7 +706,6 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatges, origen, im
     eliminar.innerHTML = "Eliminar "
 
     tr.appendChild(tdid);
-    tr.appendChild(tdim);
     tr.appendChild(tdna);
     tr.appendChild(tdde);
     tr.appendChild(tdpr);
