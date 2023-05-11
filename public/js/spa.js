@@ -180,16 +180,6 @@ async function generaGaleriaTaula() {
     });
 }
 
-/*async function carregaProductes() {
-    await consultarDadesAPI("http://apis-laravel.test/api/products").then(function (dades) {
-        // Passem les dades obtingudes a la funció per gestionar les dades
-        const accio = 'mostraTotsProductes';
-        gestionaDades(dades, accio);
-    });
-    mostraMissatge('Productes carregats.', 'carregats');
-
-}*/
-
 async function carregaProductes() {
     try {
         const dades = await consultarDadesAPI("http://apis-laravel.test/api/products");
@@ -373,16 +363,27 @@ const gestionaDades = (dades, accio, id) => {
 
     } else if (accio == 'modificarProducte') {
 
-        producte = dades[0].data;
-        const tipusFormulari = 'modificarProducte';
-        generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, producte.product_extra_images);
+        //producte = dades[0].data;
+        //const tipusFormulari = 'modificarProducte';
+        //generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, producte.product_extra_images);
+        
+        console.log(dades);
+
+        const producte = dades[0].product_data;
+        const origen = dades[0].origin;
+
+        console.log(producte);
+        
+        generaFormulari(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
+
 
     } else if (accio == 'mostraUnProducte') {
 
         netejaTaula();
-        producte = dades[0].data;
-        origen = dades[0].origin;
-        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, origen, producte.product_extra_images);
+        const producte = dades[0].product_data;
+        const origen = dades[0].origin;
+        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
+        
         botoEnrere();
 
     }  else if (accio == 'galeriaTota') {
@@ -448,7 +449,7 @@ const requestEliminar = async (...urls) => {
 
 
 
-function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincipal, imatgesExtra) {
+function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincipal, imatgesExtra, origen) {
 
     neteja();
 
@@ -491,14 +492,24 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
         const col1 = document.createElement('div'); 
         col1.setAttribute('class', 'span-6');
 
+        console.log('imagePrincipal');
+        console.log(imagePrincipal);
+
+        if  (tipusFormulari == 'mostraUnProducte') {
+            const main_img = document.createElement('img'); 
+            main_img.setAttribute('src', origen + '/' + imagePrincipal.file);
+            main_img.setAttribute('class', 'preview-form');
+            col1.appendChild(main_img);
+        }
+
         const col2 = document.createElement('div'); 
         col2.setAttribute('class', 'span-6');
 
         wrapImgInput.appendChild(col1);
         wrapImgInput.appendChild(col2);
 
-        col2.appendChild(creaLabel('Imatge principal', 'product_image'));
-        col2.appendChild(creaInput('number', 'product_image', imagePrincipal));
+        col2.appendChild(creaLabel('Imatge principal', 'product_main_image'));
+        col2.appendChild(creaInput('number', 'product_main_image', imagePrincipal));
 
         formulari.appendChild(wrapImgInput);
         
@@ -557,7 +568,7 @@ function creaInput(tipus, id, contingut) {
         if (contingut == undefined) {
             input.setAttribute('value', '');
         } else {
-            input.setAttribute('value', contingut);
+            input.setAttribute('value', contingut.id);
         }
 
         if (id == 'product_id') {
@@ -700,16 +711,9 @@ function eliminarImatge() {
 function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, imatgesExtra, origen) {
 
 
-    
-    /*console.log(id);
-    console.log(nom);
-    console.log(descripcio);
-    console.log(preu);
-    console.log(imatges);
-    console.log(origen);*/
-
     console.log(imatgePrincipal);
-    //console.log(imatgesExtra);
+    console.log(imatgesExtra);
+
 
     const entrades = document.getElementById("entrades");
     const tr = document.createElement('tr');
@@ -729,7 +733,6 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
     const imatgeProducte = document.createElement('img');
     imatgeProducte.setAttribute('src', origen + "/" + imatgePrincipal.file)
     imatgeProducte.setAttribute('class', 'imatge-index')
-
     tdim.appendChild(imatgeProducte);
 
     tdid.innerHTML = id;
@@ -784,16 +787,19 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
 
         // Imatge principal
         const foto = document.createElement('img');
-        foto.setAttribute("src", origen + "/" + rutaImatge);
+        foto.setAttribute("src", origen + "/" + imatgePrincipal.file);
+        foto.setAttribute("class", "imatge-principal");
+        foto.setAttribute("id", imatgePrincipal.file);
         imgs.appendChild(foto);
 
-        /*const jsonImatges = JSON.parse(imatgesExtra);
-
-        for (i = 0; i < jsonImatges.length; i++) {
-            const foto = document.createElement('img');
-            foto.setAttribute("src", origen + "/" + jsonImatges[i]);
-            imgs.appendChild(foto);
-        }*/
+        for (i = 0; i < imatgesExtra.length; i++) {
+            if (imatgesExtra[i].id != imatgePrincipal.id) {
+                const foto = document.createElement('img');
+                foto.setAttribute("src", origen + "/" + imatgesExtra[i].file);
+                foto.setAttribute("class", "imatge-secundaria numero-" + i);
+                imgs.appendChild(foto);
+            }
+        }
         content.appendChild(imgs);
     }
 

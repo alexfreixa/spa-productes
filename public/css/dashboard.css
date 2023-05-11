@@ -17,6 +17,10 @@ div#content {
   min-height: 100vh;
 } 
 
+img.preview-form {
+  position: relative;
+  width: 100%;
+}
 
 #entrades > tr:nth-child(odd) {
   background-color: #f6f7f7;
@@ -247,6 +251,7 @@ img.imatge-index {
 
 .wrapFromImgs {
   display: flex;
+  align-items: center;
 }
 
 #imatges {
