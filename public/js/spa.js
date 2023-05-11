@@ -208,6 +208,23 @@ function previewImatge() {
     }
 }
 
+function previewImatgeForm(e) {
+    const seleccionat = e.currentTarget;
+
+    childImg = seleccionat.parentNode;
+    pareImg = childImg.parentNode;
+    //console.log(pareImg);
+
+    imatge = pareImg.querySelector('img');
+
+    nouLink = pareImg.querySelector('option[value="' + e.target.value + '"]');
+
+    linkNovaImatge = nouLink.getAttribute("origen") + '/' + nouLink.getAttribute("linkapi");
+
+    imatge.setAttribute('src', linkNovaImatge);
+
+}
+
 function carregaProducteIndividual(event) {
     const id = event.currentTarget.getAttribute('id-element');
     consultarDadesAPI("http://apis-laravel.test/api/products/" + id).then(function (dades) {
@@ -221,12 +238,25 @@ function carregaProducteIndividual(event) {
 function modificarProducte(event) {
     const id = event.currentTarget.getAttribute('id-element');
     consultarDadesAPI("http://apis-laravel.test/api/products/" + id).then(function (dades) {
+        consultarDadesAPI("http://apis-laravel.test/api/images").then(function (imgs) {
+            consultaImgs = imgs[0].data;
+            const accio = 'modificarProducte';
+            gestionaDades(dades, accio, id, imgs);
+        });
+    });
+}
+
+/*function modificarProducte(event) {
+    const id = event.currentTarget.getAttribute('id-element');
+    consultarDadesAPI("http://apis-laravel.test/api/products/" + id).then(function (dades) {
         // Passem les dades obtingudes a la funció de visualización
         const accio = 'modificarProducte';
         gestionaDades(dades, accio, id);
     });
     //mostraMissatge('Producte modificat.', 'modificats');
-}
+}*/
+
+
 
 function clickCrear() {
     const tipusFormulari = 'crear';
@@ -346,35 +376,26 @@ function mostraMissatge(text, resposta) {
 }
 
 // Funció que mostres les dades de la promesa que se li passa
-const gestionaDades = (dades, accio, id) => {
+const gestionaDades = (dades, accio, id, imgs) => {
 
     if (accio == 'mostraTotsProductes') {
 
         const productes = dades[0].product_data;
         const origen = dades[0].origin;
 
-        console.log(productes);
-
         productes.forEach((producte) => {
-            //console.log(producte);
             consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
         });
 
 
     } else if (accio == 'modificarProducte') {
 
-        //producte = dades[0].data;
-        //const tipusFormulari = 'modificarProducte';
-        //generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, producte.product_extra_images);
-        
-        console.log(dades);
-
         const producte = dades[0].product_data;
         const origen = dades[0].origin;
 
-        console.log(producte);
-        
-        generaFormulari(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
+        let consultaImgs = imgs[0].data;
+
+        generaFormulari(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen, consultaImgs);
 
 
     } else if (accio == 'mostraUnProducte') {
@@ -388,7 +409,8 @@ const gestionaDades = (dades, accio, id) => {
 
     }  else if (accio == 'galeriaTota') {
 
-        imatges = dades[0].data.data;
+        
+        imatges = dades[0].data;
         origen = dades[0].origin;
         imatges.forEach((imatge) => {
             consultaImatges(accio, imatge.id, imatge.image_file, imatge.image_name, origen);
@@ -446,10 +468,7 @@ const requestEliminar = async (...urls) => {
 
 };
 
-
-
-
-function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincipal, imatgesExtra, origen) {
+function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincipal, imatgesExtra, origen, totesLesImatges) {
 
     neteja();
 
@@ -486,33 +505,32 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
         formulari.appendChild(creaLabel('Preu', 'product_price'));
         formulari.appendChild(creaInput('number', 'product_price', preu));
 
-        const wrapImgInput = document.createElement('div');
-        wrapImgInput.setAttribute('class', 'wrapFromImgs');
+        const imatge_principal = creaSeccionImagenPrincipal(tipusFormulari, origen, imagePrincipal, 'Imatge principal', 'product_main_image', imagePrincipal);
+        formulari.appendChild(imatge_principal);
 
-        const col1 = document.createElement('div'); 
-        col1.setAttribute('class', 'span-6');
+        if (imatgesExtra != undefined) {
+            for (i = 0; i < imatgesExtra.length; i++) {
+                const imatge = creaSeccionImagenPrincipal(tipusFormulari, origen, imatgesExtra[i], 'Imatge ' + (i+1), 'product_image[]', imagePrincipal);
+                formulari.appendChild(imatge);
+            }
 
-        console.log('imagePrincipal');
-        console.log(imagePrincipal);
-
-        if  (tipusFormulari == 'mostraUnProducte') {
-            const main_img = document.createElement('img'); 
-            main_img.setAttribute('src', origen + '/' + imagePrincipal.file);
-            main_img.setAttribute('class', 'preview-form');
-            col1.appendChild(main_img);
         }
 
-        const col2 = document.createElement('div'); 
-        col2.setAttribute('class', 'span-6');
-
-        wrapImgInput.appendChild(col1);
-        wrapImgInput.appendChild(col2);
-
-        col2.appendChild(creaLabel('Imatge principal', 'product_main_image'));
-        col2.appendChild(creaInput('number', 'product_main_image', imagePrincipal));
-
-        formulari.appendChild(wrapImgInput);
         
+        
+        /* FI IMATGE PRINCIPAL */
+
+        /*
+        <!-- The second value will be selected initially -->
+        <select name="choice">
+        <option value="first">First Value</option>
+        <option value="second" selected>Second Value</option>
+        <option value="third">Third Value</option>
+        </select>
+        */
+       //formulari.appendChild(imatge_3);
+
+       
     } else if (tipusFormulari == 'novaImatge') {
 
         formulari.appendChild(creaLabel('Selecciona la imatge que vols pujar:', 'imatge'));
@@ -556,25 +574,89 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
     formulari.appendChild(submit);
 
     content.appendChild(formulari);
+
+    options = document.querySelectorAll('.optionImgs');
+
+    
+
+    totesLesImatges.forEach(function(imatgeSel) {
+
+        options.forEach(function(opcio) {
+
+        let selectImg = document.createElement('option');
+        selectImg.setAttribute('value', imatgeSel.id);
+        selectImg.setAttribute('linkapi', imatgeSel.image_file);
+        selectImg.setAttribute('origen', origen);
+        selectImg.innerHTML = imatgeSel.image_name;
+        opcio.appendChild(selectImg);
+
+        });
+
+    });
+
+    
 }
+
+function creaSeccionImagenPrincipal(tipusFormulari, origen, imagePrincipal, label, input, totesLesImatges) {
+
+    const wrapImgInput = document.createElement('div');
+    wrapImgInput.setAttribute('class', 'wrapFromImgs');
+  
+    const col1 = document.createElement('div'); 
+    col1.setAttribute('class', 'span-6');
+  
+    if (tipusFormulari == 'modificarProducte') {
+            const main_img = document.createElement('img'); 
+            main_img.setAttribute('src', origen + '/' + imagePrincipal.file);
+            main_img.setAttribute('class', 'preview-form');
+            col1.appendChild(main_img);
+    } else {
+        col1.innerHTML = 'No hi ha imatge seleccionada.';
+    }
+
+    //document.getElementById('personlist').value=imagePrincipal.id;
+  
+    const col2 = document.createElement('div'); 
+    col2.setAttribute('class', 'span-6');
+  
+    wrapImgInput.appendChild(col1);
+    wrapImgInput.appendChild(col2);
+
+    //console.log(typeof totesLesImatges);
+  
+    col2.appendChild(creaLabel(label, input));
+    col2.appendChild(creaInput('idImatge', input, imagePrincipal));
+  
+    return wrapImgInput;
+  }
+  
 
 function creaInput(tipus, id, contingut) {
 
     let input;
 
     if (tipus == 'text' || tipus == 'number') {
+
         input = document.createElement('input');
         input.setAttribute('type', tipus);
         if (contingut == undefined) {
             input.setAttribute('value', '');
         } else {
-            input.setAttribute('value', contingut.id);
+            input.setAttribute('value', contingut);
         }
 
         if (id == 'product_id') {
             input.setAttribute('readonly', 'readonly')
             input.setAttribute('class', 'deshabilitat')
         }
+
+    } else if (tipus == 'idImatge') {
+
+        input = document.createElement('select');
+        //input.setAttribute('linkapi', contingut.file);
+        //input.setAttribute('value', contingut.name);
+        input.setAttribute('class', 'optionImgs');
+        input.addEventListener('change', previewImatgeForm);
 
     } else if (tipus == 'textarea') {
         input = document.createElement('textarea');
@@ -709,11 +791,6 @@ function eliminarImatge() {
 }
 
 function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, imatgesExtra, origen) {
-
-
-    console.log(imatgePrincipal);
-    console.log(imatgesExtra);
-
 
     const entrades = document.getElementById("entrades");
     const tr = document.createElement('tr');
