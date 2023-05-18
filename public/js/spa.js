@@ -612,10 +612,10 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
                 let selectImg = document.createElement('option');
                 selectImg.setAttribute('value', imatgeSel.id);
 
-                if (imatgeSel.id == imagePrincipal.id && opcio.id == "product_main_image") {
-                    selectImg.setAttribute('selected','selected');
-                } else if (imatgeSel.id == img3.id && opcio.id == "product_image_3"){
-                    selectImg.setAttribute('selected','selected');
+                if (imagePrincipal != null) {
+                    if (imatgeSel.id == imagePrincipal.id && opcio.id == "product_main_image") {
+                        selectImg.setAttribute('selected','selected');
+                    }
                 }
 
                 if (img1 != null) {
@@ -645,8 +645,6 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
 
             });
 
-            console.log(options);
-
     } else if (tipusFormulari == 'crear') {
 
         options = document.querySelectorAll('.optionImgs');
@@ -665,12 +663,6 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
 
         });
 
-        let opcio  = document.querySelector('#product_main_image');
-        let optionBuit = document.createElement('option');
-        optionBuit.setAttribute('value', '');
-        optionBuit.innerHTML = "-- Sense imatge --";
-        optionBuit.setAttribute('selected', 'selected');
-        opcio.insertBefore(optionBuit, opcio.firstChild);
     }
 
     creaOptionBuit(imagePrincipal, img1, img2, img3);
@@ -681,7 +673,10 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
 function creaOptionBuit(img0, img1, img2, img3){
 
 
-    
+    console.log(img0);
+    console.log(img1);
+    console.log(img2);
+    console.log(img3);
 
     let opcioMainImg  = document.querySelector('#product_main_image');
     let optionBuit = document.createElement('option');
@@ -708,6 +703,27 @@ function creaOptionBuit(img0, img1, img2, img3){
     opcioImg1.insertBefore(optionBuit1, opcioImg1.firstChild);
     opcioImg2.insertBefore(optionBuit2, opcioImg2.firstChild);
     opcioImg3.insertBefore(optionBuit3, opcioImg3.firstChild);
+
+    if (img0 == null) {
+        optionBuit.setAttribute('selected', 'selected');
+        console.log("img0 --> Null");
+    }
+    
+    if (img1 == null){
+        optionBuit1.setAttribute('selected', 'selected');
+        console.log("img1 --> Null");
+    }
+    
+    if (img2 == null){
+        optionBuit2.setAttribute('selected', 'selected');
+        console.log("img2 --> Null");
+    }
+    
+    if (img3 == null){
+        optionBuit3.setAttribute('selected', 'selected');
+        console.log("img3 --> Null");
+    }
+    
 }
 
 function creaInputsImatges(tipusFormulari, origen, imatgeSeleccionada, label, input, totesLesImatges) {
