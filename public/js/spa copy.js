@@ -93,6 +93,8 @@ async function generaCRUDTaula() {
 
         const capId = document.createElement('th');
         capId.innerHTML = 'ID';
+        const capImg = document.createElement('th');
+        capImg.innerHTML = 'Imatge';
         const capNo = document.createElement('th');
         capNo.innerHTML = 'Nom';
         const capDe = document.createElement('th');
@@ -110,6 +112,7 @@ async function generaCRUDTaula() {
         taula.appendChild(cap);
 
         cap.appendChild(capId);
+        cap.appendChild(capImg);
         cap.appendChild(capNo);
         cap.appendChild(capDe);
         cap.appendChild(capPr);
@@ -158,18 +161,6 @@ function generaGaleriaControls() {
     content.appendChild(controlsWrapper);
 }
 
-/*
-
-<section class="features">
-    <div id="image-mosaic">
-        <a href="images/DOBBY 4006-900.jpg">
-            <div style="background-image: url('images/DOBBY 4006-900.jpg')" class="card"></div>
-        </a>
-    </div>
- </section>
-
-*/
-
 async function generaGaleriaTaula() {
     return new Promise((resolve, reject) => {
 
@@ -188,16 +179,6 @@ async function generaGaleriaTaula() {
         resolve();
     });
 }
-
-/*async function carregaProductes() {
-    await consultarDadesAPI("http://apis-laravel.test/api/products").then(function (dades) {
-        // Passem les dades obtingudes a la funció per gestionar les dades
-        const accio = 'mostraTotsProductes';
-        gestionaDades(dades, accio);
-    });
-    mostraMissatge('Productes carregats.', 'carregats');
-
-}*/
 
 async function carregaProductes() {
     try {
@@ -227,6 +208,23 @@ function previewImatge() {
     }
 }
 
+function previewImatgeForm(e) {
+    const seleccionat = e.currentTarget;
+
+    childImg = seleccionat.parentNode;
+    pareImg = childImg.parentNode;
+    //console.log(pareImg);
+
+    imatge = pareImg.querySelector('img');
+
+    nouLink = pareImg.querySelector('option[value="' + e.target.value + '"]');
+
+    linkNovaImatge = nouLink.getAttribute("origen") + '/' + nouLink.getAttribute("linkapi");
+
+    imatge.setAttribute('src', linkNovaImatge);
+
+}
+
 function carregaProducteIndividual(event) {
     const id = event.currentTarget.getAttribute('id-element');
     consultarDadesAPI("http://apis-laravel.test/api/products/" + id).then(function (dades) {
@@ -240,12 +238,25 @@ function carregaProducteIndividual(event) {
 function modificarProducte(event) {
     const id = event.currentTarget.getAttribute('id-element');
     consultarDadesAPI("http://apis-laravel.test/api/products/" + id).then(function (dades) {
+        consultarDadesAPI("http://apis-laravel.test/api/images").then(function (imgs) {
+            consultaImgs = imgs[0].data;
+            const accio = 'modificarProducte';
+            gestionaDades(dades, accio, id, imgs);
+        });
+    });
+}
+
+/*function modificarProducte(event) {
+    const id = event.currentTarget.getAttribute('id-element');
+    consultarDadesAPI("http://apis-laravel.test/api/products/" + id).then(function (dades) {
         // Passem les dades obtingudes a la funció de visualización
         const accio = 'modificarProducte';
         gestionaDades(dades, accio, id);
     });
     //mostraMissatge('Producte modificat.', 'modificats');
-}
+}*/
+
+
 
 function clickCrear() {
     const tipusFormulari = 'crear';
@@ -365,32 +376,41 @@ function mostraMissatge(text, resposta) {
 }
 
 // Funció que mostres les dades de la promesa que se li passa
-const gestionaDades = (dades, accio, id) => {
+const gestionaDades = (dades, accio, id, imgs) => {
 
     if (accio == 'mostraTotsProductes') {
-        
-        productes = dades[0].data.data;
+
+        const productes = dades[0].product_data;
+        const origen = dades[0].origin;
+
         productes.forEach((producte) => {
-            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image);
+            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
         });
+
 
     } else if (accio == 'modificarProducte') {
 
-        producte = dades[0].data;
-        const tipusFormulari = 'modificarProducte';
-        generaFormulari(tipusFormulari, producte.id, producte.product_name, producte.product_description, producte.product_price);
+        const producte = dades[0].product_data;
+        const origen = dades[0].origin;
+
+        let consultaImgs = imgs[0].data;
+
+        generaFormulari(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen, consultaImgs);
+
 
     } else if (accio == 'mostraUnProducte') {
 
         netejaTaula();
-        producte = dades[0].data;
-        origen = dades[0].origin;
-        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_image, origen, producte.product_extra_images);
+        const producte = dades[0].product_data;
+        const origen = dades[0].origin;
+        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
+        
         botoEnrere();
 
     }  else if (accio == 'galeriaTota') {
 
-        imatges = dades[0].data.data;
+        
+        imatges = dades[0].data;
         origen = dades[0].origin;
         imatges.forEach((imatge) => {
             consultaImatges(accio, imatge.id, imatge.image_file, imatge.image_name, origen);
@@ -448,10 +468,7 @@ const requestEliminar = async (...urls) => {
 
 };
 
-
-
-
-function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
+function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincipal, imatgesExtra, origen, totesLesImatges) {
 
     neteja();
 
@@ -488,6 +505,43 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
         formulari.appendChild(creaLabel('Preu', 'product_price'));
         formulari.appendChild(creaInput('number', 'product_price', preu));
 
+        const imatge_principal = creaInputsImatges(tipusFormulari, origen, imagePrincipal, 'Imatge principal', 'product_main_image', imagePrincipal);
+        formulari.appendChild(imatge_principal);
+
+        if (imatgesExtra != undefined) {
+            for (i = 0; i < imatgesExtra.length; i++) {
+                const imatge = creaInputsImatges(tipusFormulari, origen, imatgesExtra[i], 'Imatge ' + (i+1), 'product_image[]', imagePrincipal);
+                formulari.appendChild(imatge);
+            }
+
+            /*while (i < 2) {
+                const imatge = creaInputsImatges(tipusFormulari, origen, imatgesExtra[i], 'Imatge ' + (i+1), 'product_image[]', imagePrincipal);
+                formulari.appendChild(imatge);
+            }*/
+
+            console.log(imagePrincipal);
+            console.log(i);
+            console.log(i);
+            console.log(i);
+            console.log(i);
+
+        }
+
+        
+        
+        /* FI IMATGE PRINCIPAL */
+
+        /*
+        <!-- The second value will be selected initially -->
+        <select name="choice">
+        <option value="first">First Value</option>
+        <option value="second" selected>Second Value</option>
+        <option value="third">Third Value</option>
+        </select>
+        */
+       //formulari.appendChild(imatge_3);
+
+       
     } else if (tipusFormulari == 'novaImatge') {
 
         formulari.appendChild(creaLabel('Selecciona la imatge que vols pujar:', 'imatge'));
@@ -531,13 +585,77 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu) {
     formulari.appendChild(submit);
 
     content.appendChild(formulari);
+
+
+    if (tipusFormulari == 'modificarProducte') {
+
+            options = document.querySelectorAll('.optionImgs');
+            totesLesImatges.forEach(function(imatgeSel) {
+
+                options.forEach(function(opcio) {
+
+                let selectImg = document.createElement('option');
+                selectImg.setAttribute('value', imatgeSel.id);
+                selectImg.setAttribute('linkapi', imatgeSel.image_file);
+                selectImg.setAttribute('origen', origen);
+                selectImg.innerHTML = imatgeSel.image_name;
+                opcio.appendChild(selectImg);
+
+                });
+
+            });
+
+    }
+
+    
 }
 
-function creaInput(tipus, id, contingut) {
+function creaInputsImatges(tipusFormulari, origen, imagePrincipal, label, input, totesLesImatges) {
+
+    const wrapImgInput = document.createElement('div');
+    wrapImgInput.setAttribute('class', 'wrapFromImgs');
+  
+    const col1 = document.createElement('div'); 
+    col1.setAttribute('class', 'span-6');
+  
+    if (tipusFormulari == 'modificarProducte') {
+            const main_img = document.createElement('img'); 
+            main_img.setAttribute('class', 'preview-form');
+            if (imagePrincipal != null) {
+                main_img.setAttribute('src', origen + '/' + imagePrincipal.file);
+            }
+            col1.appendChild(main_img);
+    } else {
+
+        const main_img = document.createElement('img'); 
+        main_img.setAttribute('class', 'preview-form');
+        col1.appendChild(main_img);
+        //col1.innerHTML = 'No hi ha imatge seleccionada.';
+    }
+
+    //document.getElementById('personlist').value=imagePrincipal.id;
+  
+    const col2 = document.createElement('div'); 
+    col2.setAttribute('class', 'span-6');
+  
+    wrapImgInput.appendChild(col1);
+    wrapImgInput.appendChild(col2);
+
+    //console.log(typeof totesLesImatges);
+  
+    col2.appendChild(creaLabel(label, input));
+    col2.appendChild(creaInput('idImatge', input, imagePrincipal, tipusFormulari));
+  
+    return wrapImgInput;
+  }
+  
+
+function creaInput(tipus, id, contingut, tipusFormulari) {
 
     let input;
 
     if (tipus == 'text' || tipus == 'number') {
+
         input = document.createElement('input');
         input.setAttribute('type', tipus);
         if (contingut == undefined) {
@@ -550,6 +668,12 @@ function creaInput(tipus, id, contingut) {
             input.setAttribute('readonly', 'readonly')
             input.setAttribute('class', 'deshabilitat')
         }
+
+    } else if (tipus == 'idImatge') {
+
+        input = document.createElement('select');
+        input.setAttribute('class', 'optionImgs');
+        input.addEventListener('change', previewImatgeForm);
 
     } else if (tipus == 'textarea') {
         input = document.createElement('textarea');
@@ -588,6 +712,32 @@ function creaInput(tipus, id, contingut) {
         input.setAttribute('name', id);
         return input;
 
+    } else if(tipus == 'arrayImatges') {
+
+        imatgesExtra = 3;
+        tipus = 'file';
+
+        inputs = document.createElement('div');
+        inputs.setAttribute('class', 'imatges-extra')
+
+        for (i = 0; i < imatgesExtra; i++) {
+            input = document.createElement('input');
+            input.setAttribute('type', tipus);
+            input.setAttribute('name', id+"[]");
+            input.setAttribute('id', id + i);
+            input.setAttribute('accept', 'image/*');
+
+            if (contingut == undefined) {
+                input.setAttribute('value', '');
+            } else {
+                input.setAttribute('value', contingut);
+                input.innerHTML = contingut;
+            }
+            inputs.appendChild(input);
+        }
+
+        return inputs;
+
     }
 
     input.setAttribute('id', id);
@@ -607,8 +757,9 @@ function creaLabel(contingut, forlabel) {
 function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
 
     const graella = document.getElementById("image-mosaic");
-    const wrapImatge = document.createElement("div");
 
+    const wrapImatge = document.createElement("div");
+    //wrapImatge.setAttribute("href", "#" + rutaImatge);
     wrapImatge.setAttribute("class", "wrapperImatge");
     
     const cartaImatge = document.createElement("div");
@@ -616,6 +767,8 @@ function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
     cartaImatge.setAttribute('class', 'card');
 
     wrapImatge.appendChild(cartaImatge);
+    //graella.appendChild(wrapImatge);
+
 
     const veure = document.createElement('a');
     const eliminar = document.createElement('a');
@@ -646,19 +799,17 @@ function carregaImatgeIndividual() {
 
 }
 
-/*function modificarImatge() {
-    
-}*/
+function eliminarImatge() {
 
-function eliminarImatge(event) {
-    const id = event.currentTarget.getAttribute('id-element');
+    const id = e.currentTarget.getAttribute('id-element');
     requestEliminar("http://apis-laravel.test/api/images/" + id).then(function (dades) {
-        generaGaleria();
+        carregaImatges();
         mostraMissatge('Imatge eliminada.', 'eliminat');
     });
+
 }
 
-function consultaProductes(accio, id, nom, descripcio, preu, rutaImatge, origen, imatgesExtra) {
+function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, imatgesExtra, origen) {
 
     const entrades = document.getElementById("entrades");
     const tr = document.createElement('tr');
@@ -666,6 +817,7 @@ function consultaProductes(accio, id, nom, descripcio, preu, rutaImatge, origen,
     tr.setAttribute("class", "entrada-taula");
 
     const tdid = document.createElement('td');
+    const tdim = document.createElement('td');
     const tdna = document.createElement('td');
     const tdde = document.createElement('td');
 
@@ -674,7 +826,19 @@ function consultaProductes(accio, id, nom, descripcio, preu, rutaImatge, origen,
     const tdpr = document.createElement('td');
     const tdac = document.createElement('td');
 
+    const imatgeProducte = document.createElement('img');
+
+    if (imatgePrincipal != null) {
+        imatgeProducte.setAttribute('src', origen + "/" + imatgePrincipal.file)
+    } else {
+        tdim.innerHTML = "X"
+    }
+
+    imatgeProducte.setAttribute('class', 'imatge-index')
+    tdim.appendChild(imatgeProducte);
+
     tdid.innerHTML = id;
+    //tdim.innerHTML = origen + "/" + imatgePrincipal.file;
     tdna.innerHTML = nom;
     tdde.innerHTML = descripcio;
     tdpr.innerHTML = preu;
@@ -706,6 +870,7 @@ function consultaProductes(accio, id, nom, descripcio, preu, rutaImatge, origen,
     eliminar.innerHTML = "Eliminar "
 
     tr.appendChild(tdid);
+    tr.appendChild(tdim);
     tr.appendChild(tdna);
     tr.appendChild(tdde);
     tr.appendChild(tdpr);
@@ -724,16 +889,21 @@ function consultaProductes(accio, id, nom, descripcio, preu, rutaImatge, origen,
 
         // Imatge principal
         const foto = document.createElement('img');
-        foto.setAttribute("src", origen + "/" + rutaImatge);
+        if (imagePrincipal != null) {
+            foto.setAttribute("src", origen + "/" + imatgePrincipal.file);
+        }
+        foto.setAttribute("class", "imatge-principal");
+        foto.setAttribute("id", imatgePrincipal.file);
         imgs.appendChild(foto);
 
-        /*const jsonImatges = JSON.parse(imatgesExtra);
-
-        for (i = 0; i < jsonImatges.length; i++) {
-            const foto = document.createElement('img');
-            foto.setAttribute("src", origen + "/" + jsonImatges[i]);
-            imgs.appendChild(foto);
-        }*/
+        for (i = 0; i < imatgesExtra.length; i++) {
+            if (imatgesExtra[i].id != imatgePrincipal.id) {
+                const foto = document.createElement('img');
+                foto.setAttribute("src", origen + "/" + imatgesExtra[i].file);
+                foto.setAttribute("class", "imatge-secundaria numero-" + i);
+                imgs.appendChild(foto);
+            }
+        }
         content.appendChild(imgs);
     }
 

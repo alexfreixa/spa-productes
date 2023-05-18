@@ -19,6 +19,10 @@
     <div id="content">
         
     </div>
+
+    <template>
+        <h1>Test</h1>
+    </template>
     
     @include('dashboard.footer')
  </body>
