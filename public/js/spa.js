@@ -402,7 +402,7 @@ const gestionaDades = (dades, accio, id, imgs) => {
         const origen = dades[0].origin;
 
         productes.forEach((producte) => {
-            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
+            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, null, null, null, origen);
         });
 
 
@@ -433,7 +433,7 @@ const gestionaDades = (dades, accio, id, imgs) => {
         netejaTaula();
         const producte = dades[0].product_data;
         const origen = dades[0].origin;
-        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_images, origen);
+        consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_image_1, producte.product_image_2, producte.product_image_3, origen);
         
         botoEnrere();
 
@@ -672,12 +672,6 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
 
 function creaOptionBuit(img0, img1, img2, img3){
 
-
-    console.log(img0);
-    console.log(img1);
-    console.log(img2);
-    console.log(img3);
-
     let opcioMainImg  = document.querySelector('#product_main_image');
     let optionBuit = document.createElement('option');
     optionBuit.setAttribute('value', '');
@@ -706,22 +700,18 @@ function creaOptionBuit(img0, img1, img2, img3){
 
     if (img0 == null) {
         optionBuit.setAttribute('selected', 'selected');
-        console.log("img0 --> Null");
     }
     
     if (img1 == null){
         optionBuit1.setAttribute('selected', 'selected');
-        console.log("img1 --> Null");
     }
     
     if (img2 == null){
         optionBuit2.setAttribute('selected', 'selected');
-        console.log("img2 --> Null");
     }
     
     if (img3 == null){
         optionBuit3.setAttribute('selected', 'selected');
-        console.log("img3 --> Null");
     }
     
 }
@@ -932,7 +922,7 @@ function eliminarImatge(e) {
 
 }
 
-function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, imatgesExtra, origen) {
+function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, img1, img2, img3, origen) {
 
     const entrades = document.getElementById("entrades");
     const tr = document.createElement('tr');
@@ -1010,29 +1000,67 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
         const imgs = document.createElement('div');
         imgs.setAttribute('id', 'imatges');
 
-        // Imatge principal
-        const foto = document.createElement('img');
-        //if (imagePrincipal != null || imatgePrincipal != undefined) {
-        if (typeof imagePrincipal !== 'undefined' && imagePrincipal !== null) {
-            foto.setAttribute("src", origen + "/" + imatgePrincipal.file);
-        }
-        foto.setAttribute("class","imatge-principal");
-        foto.setAttribute("id", imatgePrincipal.file);
-        imgs.appendChild(foto);
+        const imatge_0 = document.createElement('img');
+        const imatge_1 = document.createElement('img');
+        const imatge_2 = document.createElement('img');
+        const imatge_3 = document.createElement('img');
 
-        for (i = 0; i < imatgesExtra.length; i++) {
-            if (imatgesExtra[i].id != imatgePrincipal.id) {
-                const foto = document.createElement('img');
-                foto.setAttribute("src", origen + "/" + imatgesExtra[i].file);
-                foto.className("imatge-secundaria numero-" + i);
-                imgs.appendChild(foto);
+        if (imatgePrincipal != null) {
+            if (typeof imatgePrincipal !== 'undefined' && imatgePrincipal !== null) {
+                imatge_0.setAttribute("src", origen + "/" + imatgePrincipal.file);
             }
+            imatge_0.setAttribute("class","imatge-principal");
+            imatge_0.setAttribute("id", imatgePrincipal.file);
         }
+
+        if (img1 != null){
+            imatge_1.setAttribute("src", origen + "/" + img1.file);
+            imatge_1.setAttribute("class", "imatge-secundaria");
+        } else {
+            imatge_1.setAttribute("alt", "No hi ha imatge seleccionada.");
+        }
+
+        if (img2 != null){
+            imatge_2.setAttribute("src", origen + "/" + img2.file);
+            imatge_2.setAttribute("class", "imatge-secundaria");
+        } else {
+            imatge_2.setAttribute("alt", "No hi ha imatge seleccionada.");
+        }
+
+        if (img3 != null){
+            imatge_3.setAttribute("src", origen + "/" + img3.file);
+            imatge_3.setAttribute("class", "imatge-secundaria");
+        } else {
+            imatge_3.setAttribute("alt", "No hi ha imatge seleccionada.");
+        }
+
+        imgs.appendChild(wrapImatges(imatge_0, 'Imatge Principal'));
+        imgs.appendChild(wrapImatges(imatge_1, 'Imatge 1'));
+        imgs.appendChild(wrapImatges(imatge_2, 'Imatge 2'));
+        imgs.appendChild(wrapImatges(imatge_3, 'Imatge 3'));
+
         content.appendChild(imgs);
     }
 
 }
 
+function wrapImatges(img, title){
 
+    const wrapImatges = document.createElement('div');
+    wrapImatges.setAttribute('class', 'wrapFromImgs');
+    const col1 = document.createElement('div'); 
+    col1.setAttribute('class', 'span-6');
+    const col2 = document.createElement('div'); 
+    col2.setAttribute('class', 'span-6');
 
+    const titol = document.createElement('h4');
+    titol.innerHTML = title;
 
+    col1.appendChild(titol);
+    col2.appendChild(img);
+
+    wrapImatges.appendChild(col1);
+    wrapImatges.appendChild(col2);
+
+    return wrapImatges;
+}

@@ -252,6 +252,7 @@ img.imatge-index {
 .wrapFromImgs {
   display: flex;
   align-items: center;
+  min-width: 100%;
 }
 
 #imatges {
