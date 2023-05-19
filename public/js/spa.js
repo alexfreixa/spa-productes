@@ -294,9 +294,6 @@ function requestCrear(event) {
         product_image_2: document.getElementById('product_image_2').value,
         product_image_3: document.getElementById('product_image_3').value
     };
-    console.log("DATOS a REQUESTCREAR:")
-    console.log(datos);
-    console.log("DATOS a REQUESTCREAR:")
     
     crearProducte(urls, datos)
     .then(response => {
@@ -305,6 +302,34 @@ function requestCrear(event) {
     })
     .catch(error => {
         console.error("S\'ha produït un error al intentar crear el producte.")
+        console.error(error);
+    });
+}
+
+function requestModificar(event) {
+    event.preventDefault();
+
+    const urls = ["http://apis-laravel.test/api/products/" + document.getElementsByName("product_id")[0].value];
+    //const urls = ["http://apis-laravel.test/api/products/3"];
+    
+    const datos = {
+        product_id: document.getElementsByName("product_id")[0].value,
+        product_name: document.getElementsByName("product_name")[0].value,
+        product_description: document.getElementById('product_description').value,
+        product_price: document.getElementById('product_price').value,
+        product_main_image: document.getElementById('product_main_image').value,
+        product_image_1: document.getElementById('product_image_1').value,
+        product_image_2: document.getElementById('product_image_2').value,
+        product_image_3: document.getElementById('product_image_3').value
+    };
+    
+    editProducte(urls, datos)
+    .then(response => {
+        generaCRUD();
+        mostraMissatge('Producte modificat correctament.', 'creat');
+    })
+    .catch(error => {
+        console.error("S\'ha produït un error al intentar modificar el producte.")
         console.error(error);
     });
 }
@@ -382,6 +407,41 @@ const crearProducte = async (url, datos) => {
     } catch (error) {
         console.error(error);
         throw new Error('Error en la creación del producto');
+        
+    }
+};
+
+const editProducte = async (url, datos) => {
+    try {
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const body = JSON.stringify({
+            product_id: datos.product_id,
+            product_name: datos.product_name,
+            product_description: datos.product_description,
+            product_price: datos.product_price,
+            product_main_image: datos.product_main_image,
+            product_image_1: datos.product_image_1,
+            product_image_2: datos.product_image_2,
+            product_image_3: datos.product_image_3
+        });
+
+        const respuesta = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: body
+        });
+
+        const data = await respuesta.json();
+
+        return data;
+
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error al intentar actualitzar el producte');
         
     }
 };
@@ -518,6 +578,13 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
     if (tipusFormulari == 'modificarProducte') {
         titol.innerHTML = 'Modificant producte';
         formulari.setAttribute('method', 'post');
+
+        inputAmagat = document.createElement('input');
+        inputAmagat.setAttribute('type', 'hidden');
+        inputAmagat.setAttribute('name', '_method');
+        inputAmagat.setAttribute('value', 'put');
+        formulari.appendChild(inputAmagat);
+
     } else if (tipusFormulari == 'crear') {
         formulari.setAttribute('method', 'post');
         titol.innerHTML = 'Creant nou producte';
@@ -583,6 +650,7 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
         submit.setAttribute('class', 'boto update');
         submit.setAttribute('id-element', id);
         submit.innerHTML = "Guardar";
+        submit.addEventListener('click', requestModificar);
     } else if (tipusFormulari == 'crear') {
         submit.setAttribute('class', 'boto crear');
         submit.innerHTML = "Crear";
@@ -725,7 +793,6 @@ function creaInputsImatges(tipusFormulari, origen, imatgeSeleccionada, label, in
     col1.setAttribute('class', 'span-6');
 
 
-
     if (tipusFormulari == 'modificarProducte') {
             const main_img = document.createElement('img'); 
             main_img.setAttribute('class', 'preview-form');
@@ -736,7 +803,6 @@ function creaInputsImatges(tipusFormulari, origen, imatgeSeleccionada, label, in
                 
             col1.appendChild(main_img);
     } else {
-
 
         const main_img = document.createElement('img'); 
         main_img.setAttribute('class', 'preview-form');
