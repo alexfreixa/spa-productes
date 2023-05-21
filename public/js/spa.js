@@ -353,7 +353,7 @@ function requestModificar(event) {
     });
 }
 
-function requestPujarImatge(event) {
+/*function requestPujarImatge(event) {
     event.preventDefault();
 
     const urls = ["http://apis-laravel.test/api/images"];
@@ -370,7 +370,48 @@ function requestPujarImatge(event) {
     .catch(error => {
         console.error(error);
     });
+}*/
+
+function requestPujarImatge(event) {
+    event.preventDefault();
+
+    const inputImg = document.getElementById("inputImg");
+    const file = inputImg.files[0];
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+            const width = this.width;
+            const height = this.height;
+
+            if (width === height) {
+                // La imatge té una relació d'aspecte de 1:1
+                const urls = ["http://apis-laravel.test/api/images"];
+
+                const datos = {
+                    product_image: file
+                };
+
+                crearImatge(urls, datos)
+                    .then(response => {
+                        generaGaleria();
+                        mostraMissatge('Imatge pujada correctament.', 'creat');
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            } else {
+                generaGaleria();
+                mostraMissatge('La imatge ha de tenir una relació aspecte de 1:1 (cuadrada).', 'error');
+                //onsole.log('La imagen debe tener una relación de aspecto de 1:1');
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
 }
+
 
 const crearImatge = async (url, datos) => {
     try {
@@ -761,6 +802,7 @@ function generaFormulari(tipusFormulari, id, nom, descripcio, preu, imagePrincip
 
     }
 
+    if (tipusFormulari == 'crear' || tipusFormulari == 'modificarProducte')
     creaOptionBuit(imagePrincipal, img1, img2, img3);
 
     
@@ -971,14 +1013,7 @@ function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
 
     wrapImatge.appendChild(cartaImatge);
 
-    const veure = document.createElement('a');
     const eliminar = document.createElement('a');
-
-    veure.setAttribute('href', '#');
-    veure.setAttribute('id-element', id);
-    veure.setAttribute('accio', 'mostraUnaImatge');
-    veure.setAttribute('class', 'boto veure');
-    veure.addEventListener('click', carregaImatgeIndividual);
 
     eliminar.setAttribute('href', '#');
     eliminar.setAttribute('id-element', id);
@@ -986,10 +1021,8 @@ function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
     eliminar.setAttribute('class', 'boto eliminar');
     eliminar.addEventListener('click', eliminarImatge);
 
-    veure.innerHTML = "Veure"
     eliminar.innerHTML = "Eliminar "
 
-    wrapImatge.appendChild(veure);
     wrapImatge.appendChild(eliminar);
 
     graella.appendChild(wrapImatge);
@@ -1046,7 +1079,6 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
     const imatgeProducte = document.createElement('img');
 
     if (imatgePrincipal != null) {
-        console.log(imatgePrincipal);
         imatgeProducte.setAttribute('src', origen + "/" + imatgePrincipal.file);
     } else {
         tdim.innerHTML = "X"

@@ -71,6 +71,10 @@ img.preview-form {
   border: 1px solid #c3c4c7;
 }
 
+div#missatge.error{
+  background-color: #ad2626 !important;
+}
+
 #missatge {
   background-color: #9dabff;
   color: #fff;
@@ -322,3 +326,4 @@ form#form-buscador {
   margin: 0 auto;
   padding: 0;
 }
+
