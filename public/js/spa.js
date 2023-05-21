@@ -208,6 +208,7 @@ async function carregaProductes() {
         const dades = await consultarDadesAPI("http://apis-laravel.test/api/products");
         // Passem les dades obtingudes a la funció per gestionar les dades
         const accio = 'mostraTotsProductes';
+
         gestionaDades(dades, accio);
     } catch (error) {
         console.error(error);
@@ -483,6 +484,15 @@ const gestionaDades = (dades, accio, id, imgs) => {
             consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, null, null, null, origen);
         });
 
+    }   else if (accio == 'mostraResultatsCerca') {
+
+        console.log(dades);
+        const productes = dades.product_data;
+        const origen = dades.origin;
+
+        productes.forEach((producte) => {
+            consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, null, null, null, origen);
+        });
 
     } else if (accio == 'modificarProducte') {
 
@@ -832,8 +842,6 @@ function creaInputsImatges(tipusFormulari, origen, imatgeSeleccionada, label, in
   
     wrapImgInput.appendChild(col1);
     wrapImgInput.appendChild(col2);
-
-    //console.log(typeof totesLesImatges);
   
     col2.appendChild(creaLabel(label, input));
     col2.appendChild(creaInput('idImatge', input, imatgeSeleccionada, tipusFormulari));
@@ -954,8 +962,7 @@ function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
     const graella = document.getElementById("image-mosaic");
 
     const wrapImatge = document.createElement("div");
-    //wrapImatge.setAttribute("href", "#" + rutaImatge);
-    //wrapImatge.className("wrapperImatge");
+    
     wrapImatge.setAttribute("class", "wrapperImatge");
     
     const cartaImatge = document.createElement("div");
@@ -963,8 +970,6 @@ function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
     cartaImatge.setAttribute('class', 'card');
 
     wrapImatge.appendChild(cartaImatge);
-    //graella.appendChild(wrapImatge);
-
 
     const veure = document.createElement('a');
     const eliminar = document.createElement('a');
@@ -991,11 +996,6 @@ function consultaImatges(accio, id, rutaImatge, nomImatge, origen) {
 
 }
 
-function carregaImatgeIndividual() {
-
-}
-
-
 function buscarProducte(e) {
 
     e.preventDefault();
@@ -1004,19 +1004,17 @@ function buscarProducte(e) {
 
     fetch("http://apis-laravel.test/api/products/buscar?cerca=" + encodeURIComponent(cerca))
         .then(function(response) {
-            console.log(response);
             return response.json();
         })
         .then(function(data) {
-            // Manipular los resultados de búsqueda recibidos en 'data'
-            //displayResults(data);
-            console.log(data);
+            let accio = 'mostraResultatsCerca'; 
+            netejaTaula();
+            gestionaDades(data, accio);
         })
         .catch(function(error) {
             console.log("Error:", error);
         });
-
-}
+    }
 
 function eliminarImatge(e) {
     netejaGaleria();
@@ -1048,7 +1046,8 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
     const imatgeProducte = document.createElement('img');
 
     if (imatgePrincipal != null) {
-        imatgeProducte.setAttribute('src', origen + "/" + imatgePrincipal.file)
+        console.log(imatgePrincipal);
+        imatgeProducte.setAttribute('src', origen + "/" + imatgePrincipal.file);
     } else {
         tdim.innerHTML = "X"
     }
