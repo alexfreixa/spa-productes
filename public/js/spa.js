@@ -563,8 +563,6 @@ const gestionaDades = (dades, accio, id, imgs) => {
         const producte = dades[0].product_data;
         const origen = dades[0].origin;
         consultaProductes(accio, producte.id, producte.product_name, producte.product_description, producte.product_price, producte.product_main_image, producte.product_image_1, producte.product_image_2, producte.product_image_3, origen);
-        
-        botoEnrere();
 
     }  else if (accio == 'galeriaTota') {
 
@@ -1097,11 +1095,14 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
     const modificar = document.createElement('a');
     const eliminar = document.createElement('a');
 
-    veure.setAttribute('href', '#');
-    veure.setAttribute('id-element', id);
-    veure.setAttribute('accio', 'mostraUnProducte');
-    veure.setAttribute('class', 'boto veure');
-    veure.addEventListener('click', carregaProducteIndividual);
+    if (accio != 'mostraUnProducte') {
+        veure.setAttribute('href', '#');
+        veure.setAttribute('id-element', id);
+        veure.setAttribute('accio', 'mostraUnProducte');
+        veure.setAttribute('class', 'boto veure');
+        veure.addEventListener('click', carregaProducteIndividual);
+        veure.innerHTML = "Veure "
+    }
 
     modificar.setAttribute('href', '#');
     modificar.setAttribute('id-element', id);
@@ -1115,7 +1116,6 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
     eliminar.setAttribute('class', 'boto eliminar');
     eliminar.addEventListener('click', eliminarProducte);
 
-    veure.innerHTML = "Veure "
     modificar.innerHTML = "Modificar "
     eliminar.innerHTML = "Eliminar "
 
@@ -1125,12 +1125,6 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
     tr.appendChild(tdde);
     tr.appendChild(tdpr);
     tr.appendChild(tdac);
-
-    tdac.appendChild(veure)
-    tdac.appendChild(modificar)
-    tdac.appendChild(eliminar)
-
-    entrades.appendChild(tr);
 
     if (accio == 'mostraUnProducte') {
 
@@ -1177,7 +1171,19 @@ function consultaProductes(accio, id, nom, descripcio, preu, imatgePrincipal, im
         imgs.appendChild(wrapImatges(imatge_3, 'Imatge 3'));
 
         content.appendChild(imgs);
+
+        botoEnrere();
+        
+    } else {
+        tdac.appendChild(veure)
     }
+
+    
+    tdac.appendChild(modificar)
+    tdac.appendChild(eliminar)
+    entrades.appendChild(tr);
+
+    
 
 }
 

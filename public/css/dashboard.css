@@ -19,7 +19,7 @@ div#content {
 
 img.preview-form {
   position: relative;
-  width: 100%;
+  max-width: 60%;
 }
 
 #entrades > tr:nth-child(odd) {
