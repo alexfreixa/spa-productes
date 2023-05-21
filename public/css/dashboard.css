@@ -314,3 +314,11 @@ div#image-mosaic {
   padding: 0;
   margin: 0;
 }
+
+form#form-buscador {
+  max-width: 100% !important;
+  width: 100% !important;
+  display: inline-flex;
+  margin: 0 auto;
+  padding: 0;
+}

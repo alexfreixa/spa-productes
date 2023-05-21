@@ -59,6 +59,23 @@ function generaCRUDControls() {
     veureGaleria.setAttribute('accio', 'veure');
     veureGaleria.innerHTML = 'Veure galeria';
     veureGaleria.addEventListener('click', generaGaleria);
+
+    const formBuscador = document.createElement('form');
+    formBuscador.setAttribute('id', 'form-buscador');
+
+    const inputBuscador = document.createElement('input');
+    inputBuscador.setAttribute('type', 'text');
+    inputBuscador.setAttribute('id', 'input-buscador');
+    inputBuscador.setAttribute('name', 'input-buscador');
+    inputBuscador.setAttribute('placeholder', 'Buscar producte...');
+    
+    const botoBuscador = document.createElement('button');
+    botoBuscador.setAttribute('type', 'submit');
+    botoBuscador.innerHTML = 'Buscar';
+    botoBuscador.addEventListener('click', buscarProducte);
+
+    formBuscador.appendChild(inputBuscador);
+    formBuscador.appendChild(botoBuscador);
     
 
     const missatge = document.createElement('div');
@@ -72,6 +89,7 @@ function generaCRUDControls() {
 
     const columna2 = document.createElement('div');
     columna2.setAttribute('class', 'columna col-3');
+    columna2.appendChild(formBuscador);
     columna2.appendChild(veureGaleria);
     columna2.appendChild(crear);
 
@@ -977,11 +995,33 @@ function carregaImatgeIndividual() {
 
 }
 
+
+function buscarProducte(e) {
+
+    e.preventDefault();
+
+    var cerca = document.getElementById("input-buscador").value;
+
+    fetch("http://apis-laravel.test/api/products/buscar?cerca=" + encodeURIComponent(cerca))
+        .then(function(response) {
+            console.log(response);
+            return response.json();
+        })
+        .then(function(data) {
+            // Manipular los resultados de búsqueda recibidos en 'data'
+            //displayResults(data);
+            console.log(data);
+        })
+        .catch(function(error) {
+            console.log("Error:", error);
+        });
+
+}
+
 function eliminarImatge(e) {
     netejaGaleria();
     const id = e.currentTarget.getAttribute('id-element');
     requestEliminar("http://apis-laravel.test/api/images/" + id).then(function (dades) {
-        //
         carregaImatges();
         mostraMissatge('Imatge eliminada.', 'eliminat');
     });
